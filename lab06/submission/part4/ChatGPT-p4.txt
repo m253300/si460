@@ -1,0 +1,233 @@
+Input:
+Given this prompt:
+Part 4 - Build all Sprite Sequences - 70%
+Now extending part 3, update loadAllImages to process all images within your sprite directory.
+
+def loadAllImages(filepath="mylevel/sprites"):
+    dirs = os.listdir(filepath)
+Your results should return in a dictionary of the following format:
+
+{'hero': {'Run':{'Left':  [...array of images facing left...],
+                 'Right': [...array of images facing right...]}}}
+Here is a full example of what your completed dictionary should appear as, note that the < > would be printed as <TextureRegion XxY>, but for simplicity that portion has been removed to save space.
+
+{'weapon': {'Kunai': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                      'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]}},
+ 'hero': {'Attack': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                     'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+          'Climb': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                     'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+          'Dead': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                    'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+          'Glide': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                     'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+          'Idle': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                    'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+          'Jump': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                    'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+          'Jump-Attack': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                           'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+          'Jump-Throw': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                           'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+          'Run': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                   'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+          'Slide': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                   'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+          'Throw': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                    'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]}},
+'objects': {'cr': {'Right': [<>], 'Left': [<>]},
+            'cy': {'Right': [<>], 'Left': [<>]},
+            'ib': {'Right': [<>], 'Left': [<>]},
+            'ig': {'Right': [<>], 'Left': [<>]},
+            's1': {'Right': [<>], 'Left': [<>]},
+            's2': {'Right': [<>], 'Left': [<>]},
+            'sm': {'Right': [<>], 'Left': [<>]},
+            'st': {'Right': [<>], 'Left': [<>]},
+            't1': {'Right': [<>], 'Left': [<>]},
+            't2': {'Right': [<>], 'Left': [<>]}},
+'tiles': {'bl': {'Right': [<>], 'Left': [<>]},
+          'bu': {'Right': [<>], 'Left': [<>]},
+          'cl': {'Right': [<>], 'Left': [<>]},
+          'cr': {'Right': [<>], 'Left': [<>]},
+          'hl': {'Right': [<>], 'Left': [<>]},
+          'hm': {'Right': [<>], 'Left': [<>]},
+          'hr': {'Right': [<>], 'Left': [<>]},
+          'll': {'Right': [<>], 'Left': [<>]},
+          'lm': {'Right': [<>], 'Left': [<>]},
+          'lr': {'Right': [<>], 'Left': [<>]},
+          'ml': {'Right': [<>], 'Left': [<>]},
+          'mm': {'Right': [<>], 'Left': [<>]},
+          'mr': {'Right': [<>], 'Left': [<>]},
+          'ul': {'Right': [<>], 'Left': [<>]},
+          'um': {'Right': [<>], 'Left': [<>]},
+          'ur': {'Right': [<>], 'Left': [<>]},
+          'wl': {'Right': [<>], 'Left': [<>]},
+          'wr': {'Right': [<>], 'Left': [<>]}},
+'enemy-1': {'Attack': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>],
+                       'Left': [<>, <>, <>, <>, <>, <>, <>, <>]},
+            'Dead': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                      'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+            'Idle': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                      'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+            'Run': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                     'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]}},
+'enemy-2': {'Attack': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>],
+                        'Left': [<>, <>, <>, <>, <>, <>, <>, <>]},
+            'Dead': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                      'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+            'Idle': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                      'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>, <>]},
+            'Run': {'Right': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>],
+                     'Left': [<>, <>, <>, <>, <>, <>, <>, <>, <>, <>]}}}
+
+Please complete this prompt knowing the following directory paths:
+mylevel/objects
+mylevel/tiles
+mylevel/sprites/hero
+mylevel/sprites/weapon
+mylevel/sprites/enemy-1
+mylevel/sprites/enemy-2
+
+Where each type of file is flipped using pyglet so the sprite faces both directions: pyglet.resource.image('mylevel/sprites/hero/Attack (1).png', flip_x=False)
+
+Use this function to make it easier:
+def loadImages(filepath="mylevel/sprites/hero"):
+    files = os.listdir(filepath)
+    files.sort()  # First sort alphabetically
+    files.sort(key=natural_keys)  # Then sort using natural keys (numeric sorting)
+
+    # Dictionary to store the organized sprite images
+    sprite_dict = {}
+
+    # Iterate through the files
+    for file in files:
+        # Extract the action type (e.g., 'Attack', 'Run', etc.) from the filename
+        action = file.split(' ')[0]  # Everything before the space (e.g., 'Attack', 'Run')
+
+        # Check if the action is already in the dictionary
+        if action not in sprite_dict:
+            sprite_dict[action] = {'Left': [], 'Right': []}
+
+        # Create the full file path
+        file_path = os.path.join(filepath, file)
+
+        # Load image and flip for 'Left' and 'Right'
+        image_left = pyglet.resource.image(file_path, flip_x=False)  # Right-facing image
+        image_right = pyglet.resource.image(file_path, flip_x=True)  # Left-facing image
+
+        # Add both images to the dictionary under the corresponding action type
+        sprite_dict[action]['Right'].append(image_left)
+        sprite_dict[action]['Left'].append(image_right)
+
+    return sprite_dict
+
+Do not hardcode in the fact that the files within the directories are known.
+
+============================
+
+Output:
+To address this task, we'll need to recursively scan the sprite directories for all subfolders (e.g., hero, weapon, enemy-1, etc.) and process the images dynamically, following the same pattern you've provided with loadImages. The key part of this task is to load all the images under each action (such as Attack, Run, etc.) and automatically assign them to the 'Left' and 'Right' orientations based on the image flipping.
+
+Here’s how you can extend the loadAllImages function to achieve this:
+
+python
+Copy
+Edit
+import os
+import pyglet
+
+# Utility function to handle natural sorting (for filenames like 'Attack 1', 'Attack 2', etc.)
+def natural_keys(text):
+    import re
+    return [int(s) if s.isdigit() else s.lower() for s in re.split('([0-9]+)', text)]
+
+# Function to load images dynamically from a directory
+def loadImages(filepath):
+    files = os.listdir(filepath)
+    files.sort()  # Sort alphabetically
+    files.sort(key=natural_keys)  # Sort numerically
+
+    # Dictionary to store the organized sprite images
+    sprite_dict = {}
+
+    # Iterate through the files
+    for file in files:
+        # Extract the action type (e.g., 'Attack', 'Run', etc.) from the filename
+        action = file.split(' ')[0]  # Everything before the space (e.g., 'Attack', 'Run')
+
+        # Check if the action is already in the dictionary
+        if action not in sprite_dict:
+            sprite_dict[action] = {'Left': [], 'Right': []}
+
+        # Create the full file path
+        file_path = os.path.join(filepath, file)
+
+        # Load image and flip for 'Left' and 'Right'
+        image_left = pyglet.resource.image(file_path, flip_x=False)  # Right-facing image
+        image_right = pyglet.resource.image(file_path, flip_x=True)  # Left-facing image
+
+        # Add both images to the dictionary under the corresponding action type
+        sprite_dict[action]['Right'].append(image_left)
+        sprite_dict[action]['Left'].append(image_right)
+
+    return sprite_dict
+
+# Main function to load all images from the sprite directory
+def loadAllImages(filepath="mylevel/sprites"):
+    # Dictionary to store the entire sprite data
+    all_sprites = {}
+
+    # Traverse through all subdirectories in the sprite folder
+    for dirpath, dirnames, filenames in os.walk(filepath):
+        # Skip the root 'sprites' directory itself
+        if dirpath == filepath:
+            continue
+
+        # Get the sprite type (e.g., 'hero', 'weapon', 'enemy-1')
+        sprite_type = os.path.basename(dirpath)
+
+        # Load the images from the current directory
+        sprite_data = loadImages(dirpath)
+
+        # Add the loaded sprite data to the all_sprites dictionary
+        all_sprites[sprite_type] = sprite_data
+
+    return all_sprites
+
+# Example usage
+sprites = loadAllImages()
+Breakdown of the code:
+loadImages(filepath): This function handles the loading of images from a specific directory. It sorts the files, extracts the action name (e.g., Attack, Run), and flips the images for both left and right orientations. It then stores them in a dictionary where each action (e.g., Attack, Run) has a list of images facing both directions.
+
+loadAllImages(filepath): This function iterates through the entire sprite directory (mylevel/sprites) and processes each subdirectory (e.g., hero, weapon, enemy-1). It dynamically loads all images within each directory using the loadImages function and stores them in a hierarchical dictionary structure.
+
+Recursive Directory Traversal (os.walk): The os.walk method is used to traverse the directory tree starting from mylevel/sprites. This ensures that even if there are nested subdirectories, all images are found and processed.
+
+Expected Output:
+The sprites dictionary will have the following structure:
+
+python
+Copy
+Edit
+{
+    'hero': {
+        'Attack': {'Right': [<image1>, <image2>, ...], 'Left': [<image1>, <image2>, ...]},
+        'Run': {'Right': [<image1>, <image2>, ...], 'Left': [<image1>, <image2>, ...]},
+        ...
+    },
+    'weapon': {
+        'Kunai': {'Right': [<image1>, <image2>, ...], 'Left': [<image1>, <image2>, ...]},
+        ...
+    },
+    'enemy-1': {
+        'Attack': {'Right': [<image1>, <image2>, ...], 'Left': [<image1>, <image2>, ...]},
+        'Idle': {'Right': [<image1>, <image2>, ...], 'Left': [<image1>, <image2>, ...]},
+        ...
+    },
+    'enemy-2': {
+        'Attack': {'Right': [<image1>, <image2>, ...], 'Left': [<image1>, <image2>, ...]},
+        ...
+    },
+    ...
+}
+This structure matches the required format, dynamically loading all sprite images in both directions from the directories provided without hardcoding file names or actions.
