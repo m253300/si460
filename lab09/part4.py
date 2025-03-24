@@ -10,7 +10,7 @@ class Scene:
         self.density = 10
         self.cameraX = 0.0
         self.cameraZ = 60.0
-        self.angle = 90.0
+        self.angleX = 90.0
         self.screenshot = 0
 
         self.window = pyglet.window.Window(width=width, height=height, resizable=resizable, caption=caption)
@@ -85,13 +85,13 @@ class Scene:
             elif motion == 65364: # down arrow
                 self.density += 1
             elif motion == 65363: # right arrow
-                self.angle += 1
-                self.cameraX = 0.0 + 60.0*py.cos(self.angle*(py.pi/180))
-                self.cameraZ = 0.0 + 60.0*py.sin(self.angle*(py.pi/180))
+                self.angleX += 1
+                self.cameraX = 0.0 + 60.0*py.cos(self.angleX*(py.pi/180))
+                self.cameraZ = 0.0 + 60.0*py.sin(self.angleX*(py.pi/180))
             elif motion == 65361: # left arrow
-                self.angle -= 1
-                self.cameraX = 0.0 + 60.0*py.cos(self.angle*(py.pi/180))
-                self.cameraZ = 0.0 + 60.0*py.sin(self.angle*(py.pi/180))
+                self.angleX -= 1
+                self.cameraX = 0.0 + 60.0*py.cos(self.angleX*(py.pi/180))
+                self.cameraZ = 0.0 + 60.0*py.sin(self.angleX*(py.pi/180))
 
         @self.window.event
         def on_key_press(symbol, modifiers):
@@ -104,13 +104,15 @@ class Scene:
             #print(str(['mouse drag', x, y, dx, dy, "buttons = ", buttons, "modifiers = ", modifiers]))
             
             if dx > 0:
-                self.angle += 1
+                self.angleX += 1
             elif dx < 0:
-                self.angle -= 1
+                self.angleX -= 1
             
-            self.cameraX = 0.0 + 60.0*py.cos(self.angle*(py.pi/180))
-            self.cameraZ = 0.0 + 60.0*py.sin(self.angle*(py.pi/180))
-
+            self.cameraX = 0.0 + 60.0*py.cos(self.angleX*(py.pi/180))
+            self.cameraZ = 0.0 + 60.0*py.sin(self.angleX*(py.pi/180))
+        
+        def arcball(x, y, width, height):
+            
             
 if __name__ == '__main__':
     myGame = Scene(600, 500, "Transformations")
