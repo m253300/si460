@@ -10,7 +10,7 @@ class Scene:
         self.density = 10
         self.cameraX = 0.0
         self.cameraZ = 60.0
-        self.angle = 0.0
+        self.angle = 90.0
         self.screenshot = 0
 
         self.window = pyglet.window.Window(width=width, height=height, resizable=resizable, caption=caption)
