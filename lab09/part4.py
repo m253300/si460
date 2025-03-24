@@ -8,10 +8,10 @@ class Scene:
     def __init__(self, width=800, height=600, caption="Would you like to play a game?", resizable=False):
 
         self.density = 10
-        self.cameraX = 0.0
-        self.cameraZ = 60.0
-        self.angleX = 90.0
         self.screenshot = 0
+        self.vals = [py.array([0.0, 0.0, 0.0, 0.0], dtype='float64')]
+        self.width = width
+        self.height = height
 
         self.window = pyglet.window.Window(width=width, height=height, resizable=resizable, caption=caption)
 
@@ -33,7 +33,8 @@ class Scene:
 
             glColor3f(1.0, 1.0, 1.0)
 
-            gluLookAt(self.cameraX, 0.0, self.cameraZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+            glRotatef(self.vals[-1][0], self.vals[-1][1], self.vals[-1][2], self.vals[-1][3])
+            glTranslatef(0.0, 0.0, -60.0)
             PointCloud(30.0)
             WireCube(20.0)
 
@@ -84,14 +85,6 @@ class Scene:
                 self.density -= 1
             elif motion == 65364: # down arrow
                 self.density += 1
-            elif motion == 65363: # right arrow
-                self.angleX += 1
-                self.cameraX = 0.0 + 60.0*py.cos(self.angleX*(py.pi/180))
-                self.cameraZ = 0.0 + 60.0*py.sin(self.angleX*(py.pi/180))
-            elif motion == 65361: # left arrow
-                self.angleX -= 1
-                self.cameraX = 0.0 + 60.0*py.cos(self.angleX*(py.pi/180))
-                self.cameraZ = 0.0 + 60.0*py.sin(self.angleX*(py.pi/180))
 
         @self.window.event
         def on_key_press(symbol, modifiers):
@@ -103,16 +96,33 @@ class Scene:
         def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
             #print(str(['mouse drag', x, y, dx, dy, "buttons = ", buttons, "modifiers = ", modifiers]))
             
-            if dx > 0:
-                self.angleX += 1
-            elif dx < 0:
-                self.angleX -= 1
-            
-            self.cameraX = 0.0 + 60.0*py.cos(self.angleX*(py.pi/180))
-            self.cameraZ = 0.0 + 60.0*py.sin(self.angleX*(py.pi/180))
-        
-        def arcball(x, y, width, height):
-            
+            w = self.width
+            h = self.height
+
+            n1 = (x-(w/2))**2
+            n2 = (y-(h/2))**2
+            n3 = (h/2)**2
+
+            if (n1+n2) < n3:
+                zp = py.sqrt(n3-n1-n2)
+            else:
+                zp = 0.01
+
+            xp = -((w/2)-x)
+            yp = y-(h/2)
+
+            val1 = self.vals[-1]
+            print(self.vals)
+            print(val1)
+            p1 = py.array([val1[1], val1[2], val1[3]], dtype='float64')
+
+            p2 = py.array([xp, yp, zp], dtype='float64')
+
+            angle = py.arccos((p1.dot(p2))/(py.linalg.norm(p2)*py.linalg.norm(p1)))
+
+            u = (py.cross(p1, p2))/(py.linalg.norm(p2)*py.linalg.norm(p1))
+
+            self.vals.append(py.array([angle, u[0], u[1], u[2]], dtype='float64'))
             
 if __name__ == '__main__':
     myGame = Scene(600, 500, "Transformations")
