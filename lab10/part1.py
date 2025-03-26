@@ -4,7 +4,7 @@
 import pyglet
 from pyglet.window import mouse, key
 from pyglet.gl import *
-import time, sys, numpy, importlib
+import time, sys, numpy, importlib, random
 
 # Our world that we will draw via pyglet
 class Scene:
@@ -143,8 +143,16 @@ class Scene:
       u = (numpy.cross(p1, p2) / (numpy.linalg.norm(p2) * numpy.linalg.norm(p1)))
       return theta, u
 
-class Particle:
-    def __init__(self, numofparticles):
+class Fountain:
+    def __init__(self):
+        self.timeStep = 0
+        self.thetaMax = 20.0
+        self.thetaMin = 0.0
+        self.S = 90.0
+        self.tlag = random.randint(0, 60)
+        self.imax = 1000
+    
+    def draw(self, t):
         
 
 # Run the following code if this script was run directly from the command line
