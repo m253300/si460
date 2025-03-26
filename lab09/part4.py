@@ -12,6 +12,7 @@ class Scene:
         self.vals = [py.array([0.0, 0.0, 0.0, 0.0], dtype='float64')]
         self.width = width
         self.height = height
+        self.mouseclickXYZ = py.array([0.0, 0.0, 0.0], dtype='float64')
 
         self.window = pyglet.window.Window(width=width, height=height, resizable=resizable, caption=caption)
 
@@ -33,8 +34,9 @@ class Scene:
 
             glColor3f(1.0, 1.0, 1.0)
 
-            glRotatef(self.vals[-1][0], self.vals[-1][1], self.vals[-1][2], self.vals[-1][3])
             glTranslatef(0.0, 0.0, -60.0)
+            for x in self.vals:
+                glRotatef(x[0], x[1], x[2], x[3])
             PointCloud(30.0)
             WireCube(20.0)
 
@@ -103,26 +105,39 @@ class Scene:
             n2 = (y-(h/2))**2
             n3 = (h/2)**2
 
+            zp = 0.01
             if (n1+n2) < n3:
                 zp = py.sqrt(n3-n1-n2)
-            else:
-                zp = 0.01
 
             xp = -((w/2)-x)
             yp = y-(h/2)
-
-            val1 = self.vals[-1]
-            print(self.vals)
-            print(val1)
-            p1 = py.array([val1[1], val1[2], val1[3]], dtype='float64')
-
             p2 = py.array([xp, yp, zp], dtype='float64')
+
+            p1 = self.mouseclickXYZ
 
             angle = py.arccos((p1.dot(p2))/(py.linalg.norm(p2)*py.linalg.norm(p1)))
 
             u = (py.cross(p1, p2))/(py.linalg.norm(p2)*py.linalg.norm(p1))
 
             self.vals.append(py.array([angle, u[0], u[1], u[2]], dtype='float64'))
+        
+        @self.window.event
+        def on_mouse_press(x, y, button, modifiers):
+            w = self.width
+            h = self.height
+
+            n1 = (x-(w/2))**2
+            n2 = (y-(h/2))**2
+            n3 = (h/2)**2
+
+            zp = 0.01
+            if (n1+n2) < n3:
+                zp = py.sqrt(n3-n1-n2)
+
+            xp = -((w/2)-x)
+            yp = y-(h/2)
+
+            self.mouseclickXYZ = py.array([xp, yp, zp], dtype='float64')
             
 if __name__ == '__main__':
     myGame = Scene(600, 500, "Transformations")
