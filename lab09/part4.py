@@ -35,7 +35,7 @@ class Scene:
             glColor3f(1.0, 1.0, 1.0)
 
             glTranslatef(0.0, 0.0, -60.0)
-            for x in self.vals:
+            for x in reversed(self.vals):
                 glRotatef(x[0], x[1], x[2], x[3])
             PointCloud(30.0)
             WireCube(20.0)
