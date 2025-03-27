@@ -153,7 +153,7 @@ class Fountain:
         self.imax = 1000
     
     def draw(self, t):
-        
+        return 0
 
 # Run the following code if this script was run directly from the command line
 if __name__ == '__main__':
