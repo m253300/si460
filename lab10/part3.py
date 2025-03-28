@@ -103,7 +103,7 @@ class Scene:
 
             # Translate the world to give us more space, the more
             # we push things back the smaller they start out as...
-            glTranslatef(0.0,0.0,-60.0)
+            glTranslatef(0.0,0.0,-450.0)
 
             # Rotate the world based on the arcball algorithm
             for r in reversed(self.wr):
@@ -114,8 +114,9 @@ class Scene:
             glScalef(self.zoom, self.zoom, self.zoom)
 
             # Lets draw all of the individual objects.
+            WireCube(420.0)
             for particle in self.particles:
-                particle.draw(self.worldTime)
+                particle.draw(self.worldTime, 210)
 
         def WireCube(dim):
             x_min, y_min, z_min = -0.5*dim, -0.5*dim, -0.5*dim
@@ -159,19 +160,40 @@ class Particle:
         self.acceleration = numpy.array([0.0, -9.8, 0.0])
         self.tlag = random.uniform(0, 60)
         self.initialposition = numpy.array([0.0, 0.0, 0.0])
+        self.boundsize = 0.0
 
         alpha = theta/thetaMax
         theta = numpy.radians(theta)
         V = numpy.array([numpy.sin(theta) * numpy.sin(phi), numpy.cos(theta), numpy.sin(theta) * numpy.cos(phi)])
         self.initialvelocity = S*(1-alpha**2)*V
 
-    def draw(self, t):
+    def draw(self, t, bound = False):
         #if t is greater than or equal to tlag then we draw
         if t >= self.tlag:
             time = t - self.tlag
             position = self.initialposition + self.initialvelocity * time + 0.5 * self.acceleration * time**2
+            if (bound != False):
+                px = position[0]
+                if px >= bound-self.boundsize-4:
+                    px = bound-self.boundsize-4
+                elif px <= -bound:
+                    px = -bound
+
+                py = position[1]
+                if py >= bound-self.boundsize:
+                    py = bound-self.boundsize
+                elif py <= -bound:
+                    py = -bound
+
+                pz = position[2]
+                if pz >= bound-self.boundsize:
+                    pz = bound-self.boundsize
+                elif pz <= -bound:
+                    pz = -bound
+
+                position = numpy.array([px, py, pz])
             #self.drawDot(position)
-            self.drawTetrahedron(position)
+            self.drawTetrahedron(position, 25)
 
     def drawDot(self, position):
         glBegin(GL_POINTS)
@@ -185,6 +207,8 @@ class Particle:
     # V3=(a/2, (a*sqrt(3))/2, 0) 
     # V4=(a/2, (a*sqrt(3))/6, (a*sqrt(6))/3)
     def drawTetrahedron(self, position, sidelength = 3):
+        self.boundsize = sidelength*numpy.sqrt(2/3)
+
         glBegin(GL_TRIANGLES)
 
         # V1 - V2 - V3
@@ -225,6 +249,6 @@ class Particle:
 if __name__ == '__main__':
     particles = []
     for x in range(0, 1000):
-        particles.append(Particle(0.0, 20.0, 90.0))
+        particles.append(Particle(0.0, 45.0, 90.0))
     myGame = Scene(600, 600, "Particle Simulation", particles=particles)
     pyglet.app.run()
