@@ -169,9 +169,10 @@ class Particle:
     def draw(self, t):
         #if t is greater than or equal to tlag then we draw
         if t >= self.tlag:
+            time = t - self.tlag
             #use glbegin and whatnot to draw
             glBegin(GL_POINTS)
-            position = self.initialposition + self.initialvelocity * t + 0.5 * self.acceleration * t**2
+            position = self.initialposition + self.initialvelocity * time + 0.5 * self.acceleration * time**2
             glVertex3f(position[0], position[1], position[2])
             glEnd()
 
