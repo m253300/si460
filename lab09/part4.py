@@ -101,43 +101,51 @@ class Scene:
             w = self.width
             h = self.height
 
-            n1 = (x-(w/2))**2
-            n2 = (y-(h/2))**2
-            n3 = (h/2)**2
-
-            zp = 0.01
-            if (n1+n2) < n3:
-                zp = py.sqrt(n3-n1-n2)
-
+            zp = self.calcZ(x, y)
             xp = -((w/2)-x)
             yp = y-(h/2)
             p2 = py.array([xp, yp, zp], dtype='float64')
 
             p1 = self.mouseclickXYZ
 
-            angle = py.arccos((p1.dot(p2))/(py.linalg.norm(p2)*py.linalg.norm(p1)))
+            angle = self.calcAngle(p1, p2)
 
-            u = (py.cross(p1, p2))/(py.linalg.norm(p2)*py.linalg.norm(p1))
+            u = self.calcU(p1, p2)
 
-            self.vals.append(py.array([angle, u[0], u[1], u[2]], dtype='float64'))
+            self.vals[-1]=(py.array([angle, u[0], u[1], u[2]], dtype='float64'))
         
         @self.window.event
         def on_mouse_press(x, y, button, modifiers):
             w = self.width
             h = self.height
 
-            n1 = (x-(w/2))**2
-            n2 = (y-(h/2))**2
-            n3 = (h/2)**2
-
-            zp = 0.01
-            if (n1+n2) < n3:
-                zp = py.sqrt(n3-n1-n2)
-
+            zp = self.calcZ(x, y)
             xp = -((w/2)-x)
             yp = y-(h/2)
 
+            self.vals.append(py.array([0.0, 0.0, 0.0, 0.0], dtype='float64'))
+
             self.mouseclickXYZ = py.array([xp, yp, zp], dtype='float64')
+    
+    def calcZ(self, x, y):
+        w = self.width
+        h = self.height
+
+        z = 0.01
+        n1 = (x - (w/2.0))**2
+        n2 = (y - (h/2.0))**2
+        n3 = ((h/2.0)**2)
+
+        if (n1 + n2 < n3):
+            z = py.sqrt(n3 - n1 - n2)
+        
+        return z
+    
+    def calcAngle(self, p1, p2):
+        return py.degrees(py.arccos((p1.dot(p2))/(py.linalg.norm(p2) * py.linalg.norm(p1))))
+
+    def calcU(self, p1, p2):
+        return (py.cross(p1, p2) / (py.linalg.norm(p2) * py.linalg.norm(p1)))
             
 if __name__ == '__main__':
     myGame = Scene(600, 500, "Transformations")
