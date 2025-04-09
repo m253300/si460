@@ -61,37 +61,42 @@ def on_draw():
             # (i, j) - (i, j+1)
             # tl - tr
             if tl < threshold < tr or tl > threshold > tr:
-                x = tlc[0] + (j+0.5)
+                interp = interpolate(tl, tr, threshold)
+                x = tlc[0] + (j+interp)
                 y = tlc[1] - (i)
-                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (tl={tl}, tr={tr}) @ (x={x}, y={y}) @ (i={i}, j={j})")
+                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (tl={tl}, tr={tr}) @ (x={x}, y={y}) @ (i={i}, j={j}) @ interp={interp}")
                 glVertex3f(x, y, 0.0)
 
             # (i, j+1) - (i+1, j+1)
             # tr - br
             if tr < threshold < br or tr > threshold > br:
+                interp = interpolate(tr, br, threshold)
                 x = tlc[0] + (j+1)
-                y = tlc[1] - (i+0.5)
-                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (tr={tr}, br={br}) @ (x={x}, y={y}) @ (i={i}, j={j})")
+                y = tlc[1] - (i+interp)
+                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (tr={tr}, br={br}) @ (x={x}, y={y}) @ (i={i}, j={j}) @ interp={interp}")
                 glVertex3f(x, y, 0.0)
 
             # (i+1, j+1) - (i+1, j)
             # br - bl
             if br < threshold < bl or br > threshold > bl:
-                x = tlc[0] + (j+0.5)
+                interp = interpolate(bl, br, threshold)
+                x = tlc[0] + (j+interp)
                 y = tlc[1] - (i+1)
-                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (br={br}, bl={bl}) @ (x={x}, y={y}) @ (i={i}, j={j})")
+                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (br={br}, bl={bl}) @ (x={x}, y={y}) @ (i={i}, j={j}) @ interp={interp}")
                 glVertex3f(x, y, 0.0)
 
             # (i+1, j) - (i, j)
             # bl - tl
             if bl < threshold < tl or bl > threshold > tl:
+                interp = interpolate(tl, bl, threshold)
                 x = tlc[0] + (j)
-                y = tlc[1] - (i+0.5)
-                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (bl={bl}, tl={tl}) @ (x={x}, y={y}) @ (i={i}, j={j})")
+                y = tlc[1] - (i+interp)
+                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (bl={bl}, tl={tl}) @ (x={x}, y={y}) @ (i={i}, j={j}) @ interp={interp}")
                 glVertex3f(x, y, 0.0)
     glEnd()
 
-        
+def interpolate(a, b, t):
+    return (t-a)/(b-a)
 
 # Begin the main program loop
 map = map.get_matrix(rows = 10, cols = 10, seed = 3, delta = 3, maxval = 20)
