@@ -6,7 +6,7 @@ from pyglet.gl import *
 import makeTopoMap as map
 
 # Define the window
-window = pyglet.window.Window(600, 600, resizable=False, caption='Koutrakos - Lab 11 - Part 1')
+window = pyglet.window.Window(600, 600, resizable=False, caption='ex1.py')
 
 # Define how we should draw whats inside the window
 @window.event
@@ -23,8 +23,26 @@ def on_draw():
     tlc = (-(rows-1)/2, (cols-1)/2)
 
     # implement algorithm to go through the matrix x
-    glBegin(GL_LINES)
+    glBegin(GL_POINTS)
+
+    # Mark center with blue dot
+    glColor3f(0.0, 0.0, 1.0)   # Blue
+    glVertex3f(0.0, 0.0, 0.0)
+
+    # Create grid with white dots
     glColor3f(1.0, 1.0, 1.0)   # White
+    for i in range(rows):
+        for j in range(cols):
+            x = tlc[0] + i
+            y = tlc[1] - j
+            glVertex3f(x, y, 0.0)
+            #print(f"({x}, {y}) val={map[i][j]}")
+
+    glEnd()
+
+    # Mark passes of the threshold with red dots
+    glBegin(GL_LINES)
+    glColor3f(1.0, 0.0, 0.0)   # Red
     for i in range(rows-1):
         for j in range(cols-1):
             # top-left (tl) - (i, j)
@@ -46,6 +64,7 @@ def on_draw():
                 interp = interpolate(tl, tr, threshold)
                 x = tlc[0] + (j+interp)
                 y = tlc[1] - (i)
+                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (tl={tl}, tr={tr}) @ (x={x}, y={y}) @ (i={i}, j={j}) @ interp={interp}")
                 glVertex3f(x, y, 0.0)
 
             # (i, j+1) - (i+1, j+1)
@@ -54,6 +73,7 @@ def on_draw():
                 interp = interpolate(tr, br, threshold)
                 x = tlc[0] + (j+1)
                 y = tlc[1] - (i+interp)
+                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (tr={tr}, br={br}) @ (x={x}, y={y}) @ (i={i}, j={j}) @ interp={interp}")
                 glVertex3f(x, y, 0.0)
 
             # (i+1, j+1) - (i+1, j)
@@ -62,6 +82,7 @@ def on_draw():
                 interp = interpolate(bl, br, threshold)
                 x = tlc[0] + (j+interp)
                 y = tlc[1] - (i+1)
+                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (br={br}, bl={bl}) @ (x={x}, y={y}) @ (i={i}, j={j}) @ interp={interp}")
                 glVertex3f(x, y, 0.0)
 
             # (i+1, j) - (i, j)
@@ -70,6 +91,7 @@ def on_draw():
                 interp = interpolate(tl, bl, threshold)
                 x = tlc[0] + (j)
                 y = tlc[1] - (i+interp)
+                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (bl={bl}, tl={tl}) @ (x={x}, y={y}) @ (i={i}, j={j}) @ interp={interp}")
                 glVertex3f(x, y, 0.0)
     glEnd()
 
@@ -79,6 +101,7 @@ def interpolate(a, b, t):
 # Begin the main program loop
 map = map.get_matrix(rows = 10, cols = 10, seed = 3, delta = 3, maxval = 20)
 threshold = 6.5
+print(map)
 rows = len(map)
 cols = len(map[0])
 pyglet.app.run()

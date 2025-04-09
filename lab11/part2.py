@@ -4,9 +4,10 @@
 import pyglet
 from pyglet.gl import *
 import makeTopoMap as map
+import numpy as np
 
 # Define the window
-window = pyglet.window.Window(600, 600, resizable=False, caption='Koutrakos - Lab 11 - Part 1')
+window = pyglet.window.Window(600, 600, resizable=False, caption='Koutrakos - Lab 11 - Part 2')
 
 # Define how we should draw whats inside the window
 @window.event
@@ -20,11 +21,19 @@ def on_draw():
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
 
-    tlc = (-(rows-1)/2, (cols-1)/2)
+    # draw the contour for each threshold 0.5-19.5 incrementing by 0.5
+    for i in np.arange(0.5, 20.0, 1):
+        drawContour(i)
 
-    # implement algorithm to go through the matrix x
+def interpolate(a, b, t):
+    return (t-a)/(b-a)
+
+def drawContour(t):
     glBegin(GL_LINES)
     glColor3f(1.0, 1.0, 1.0)   # White
+
+    tlc = (-(rows-1)/2, (cols-1)/2)
+
     for i in range(rows-1):
         for j in range(cols-1):
             # top-left (tl) - (i, j)
@@ -42,43 +51,39 @@ def on_draw():
             # check:
             # (i, j) - (i, j+1)
             # tl - tr
-            if tl < threshold < tr or tl > threshold > tr:
-                interp = interpolate(tl, tr, threshold)
+            if tl < t < tr or tl > t > tr:
+                interp = interpolate(tl, tr, t)
                 x = tlc[0] + (j+interp)
                 y = tlc[1] - (i)
                 glVertex3f(x, y, 0.0)
 
             # (i, j+1) - (i+1, j+1)
             # tr - br
-            if tr < threshold < br or tr > threshold > br:
-                interp = interpolate(tr, br, threshold)
+            if tr < t < br or tr > t > br:
+                interp = interpolate(tr, br, t)
                 x = tlc[0] + (j+1)
                 y = tlc[1] - (i+interp)
                 glVertex3f(x, y, 0.0)
 
             # (i+1, j+1) - (i+1, j)
             # br - bl
-            if br < threshold < bl or br > threshold > bl:
-                interp = interpolate(bl, br, threshold)
+            if br < t < bl or br > t > bl:
+                interp = interpolate(bl, br, t)
                 x = tlc[0] + (j+interp)
                 y = tlc[1] - (i+1)
                 glVertex3f(x, y, 0.0)
 
             # (i+1, j) - (i, j)
             # bl - tl
-            if bl < threshold < tl or bl > threshold > tl:
-                interp = interpolate(tl, bl, threshold)
+            if bl < t < tl or bl > t > tl:
+                interp = interpolate(tl, bl, t)
                 x = tlc[0] + (j)
                 y = tlc[1] - (i+interp)
                 glVertex3f(x, y, 0.0)
     glEnd()
 
-def interpolate(a, b, t):
-    return (t-a)/(b-a)
-
 # Begin the main program loop
 map = map.get_matrix(rows = 10, cols = 10, seed = 3, delta = 3, maxval = 20)
-threshold = 6.5
 rows = len(map)
 cols = len(map[0])
 pyglet.app.run()
