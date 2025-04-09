@@ -41,7 +41,7 @@ def on_draw():
     glEnd()
 
     # Mark passes of the threshold with red dots
-    glBegin(GL_POINTS)
+    glBegin(GL_LINES)
     glColor3f(1.0, 0.0, 0.0)   # Red
     for i in range(rows-1):
         for j in range(cols-1):
