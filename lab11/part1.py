@@ -61,33 +61,33 @@ def on_draw():
             # (i, j) - (i, j+1)
             # tl - tr
             if tl < threshold < tr or tl > threshold > tr:
-                x = tlc[0] + (i+0.5)
-                y = tlc[1] - (j)
-                print(f"({tl}, {tr}) @ ({x}, {y}) @ ({i}, {j})")
+                x = tlc[0] + (j+0.5)
+                y = tlc[1] - (i)
+                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (tl={tl}, tr={tr}) @ (x={x}, y={y}) @ (i={i}, j={j})")
                 glVertex3f(x, y, 0.0)
 
             # (i, j+1) - (i+1, j+1)
             # tr - br
             if tr < threshold < br or tr > threshold > br:
-                x = tlc[0] + (i+1)
-                y = tlc[1] - (j+0.5)
-                print(f"({tr}, {br}) @ ({x}, {y}) @ ({i}, {j})")
+                x = tlc[0] + (j+1)
+                y = tlc[1] - (i+0.5)
+                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (tr={tr}, br={br}) @ (x={x}, y={y}) @ (i={i}, j={j})")
                 glVertex3f(x, y, 0.0)
 
             # (i+1, j+1) - (i+1, j)
             # br - bl
             if br < threshold < bl or br > threshold > bl:
-                x = tlc[0] + (i+1)
-                y = tlc[1] - (j+0.5)
-                print(f"({br}, {bl}) @ ({x}, {y}) @ ({i}, {j})")
+                x = tlc[0] + (j+0.5)
+                y = tlc[1] - (i+1)
+                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (br={br}, bl={bl}) @ (x={x}, y={y}) @ (i={i}, j={j})")
                 glVertex3f(x, y, 0.0)
 
             # (i+1, j) - (i, j)
             # bl - tl
             if bl < threshold < tl or bl > threshold > tl:
-                x = tlc[0] + (i)
-                y = tlc[1] - (j+0.5)
-                print(f"({bl}, {tl}) @ ({x}, {y}) @ ({i}, {j})")
+                x = tlc[0] + (j)
+                y = tlc[1] - (i+0.5)
+                print(f"(tlc[x]={tlc[0]}, tlc[y]={tlc[1]}), (bl={bl}, tl={tl}) @ (x={x}, y={y}) @ (i={i}, j={j})")
                 glVertex3f(x, y, 0.0)
     glEnd()
 
