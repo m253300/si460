@@ -28,21 +28,17 @@ def on_draw():
     # Mark center with blue dot
     glColor3f(0.0, 0.0, 1.0)   # Blue
     glVertex3f(0.0, 0.0, 0.0)
-    #glEnd()
 
     # Create grid with white dots
     glColor3f(1.0, 1.0, 1.0)   # White
     for i in range(rows):
         for j in range(cols):
-            glVertex3f(tlc[0] + i, tlc[1] - j, 0.0)
-    glEnd()
+            x = tlc[0] + i
+            y = tlc[1] - j
+            glVertex3f(x, y, 0.0)
+            #print(f"({x}, {y}) val={map[i][j]}")
 
-    label = pyglet.text.Label('Z',
-            font_name='Times New Roman',
-            font_size=2,
-            x=0, y=0,
-            anchor_x='center', anchor_y='center')
-    label.draw()
+    glEnd()
 
     # Mark passes of the threshold with red dots
     glBegin(GL_POINTS)
@@ -64,34 +60,34 @@ def on_draw():
             # check:
             # (i, j) - (i, j+1)
             # tl - tr
-            if tl < threshold < tr:
+            if tl < threshold < tr or tl > threshold > tr:
                 x = tlc[0] + (i+0.5)
                 y = tlc[1] - (j)
-                print(f"({tl}, {tr}) @ ({x}, {y})")
+                print(f"({tl}, {tr}) @ ({x}, {y}) @ ({i}, {j})")
                 glVertex3f(x, y, 0.0)
 
             # (i, j+1) - (i+1, j+1)
             # tr - br
-            if tr < threshold < br:
+            if tr < threshold < br or tr > threshold > br:
                 x = tlc[0] + (i+1)
                 y = tlc[1] - (j+0.5)
-                print(f"({tr}, {br}) @ ({x}, {y})")
+                print(f"({tr}, {br}) @ ({x}, {y}) @ ({i}, {j})")
                 glVertex3f(x, y, 0.0)
 
             # (i+1, j+1) - (i+1, j)
             # br - bl
-            if br < threshold < bl:
+            if br < threshold < bl or br > threshold > bl:
                 x = tlc[0] + (i+1)
                 y = tlc[1] - (j+0.5)
-                print(f"({br}, {bl}) @ ({x}, {y})")
+                print(f"({br}, {bl}) @ ({x}, {y}) @ ({i}, {j})")
                 glVertex3f(x, y, 0.0)
 
             # (i+1, j) - (i, j)
             # bl - tl
-            if bl < threshold < tl:
+            if bl < threshold < tl or bl > threshold > tl:
                 x = tlc[0] + (i)
                 y = tlc[1] - (j+0.5)
-                print(f"({bl}, {tl}) @ ({x}, {y})")
+                print(f"({bl}, {tl}) @ ({x}, {y}) @ ({i}, {j})")
                 glVertex3f(x, y, 0.0)
     glEnd()
 
