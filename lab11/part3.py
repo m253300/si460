@@ -28,14 +28,18 @@ class Scene:
 
             glMatrixMode(gl.GL_PROJECTION)
             glLoadIdentity()
-            glOrtho(-cols/2, cols/2, -rows/2, rows/2, -20.0, 0)
+            if cols > rows:
+                glOrtho(-cols/2, cols/2, -cols/2, cols/2, -20.0, 0)
+            else:
+                glOrtho(-rows/2, rows/2, -rows/2, rows/2, -20.0, 0)
+            
             glMatrixMode(gl.GL_MODELVIEW)
             glLoadIdentity()
 
             glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
             glLoadIdentity()
 
-            gluLookAt(0.0, 0.0, 2, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+            #gluLookAt(0.0, -0.1, 0.4, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 
             # draw the contour for each threshold 0.5-19.5 incrementing by 0.5
             for i in np.arange(0.5, 20.0, 1):
@@ -99,7 +103,7 @@ class Scene:
             glEnd()
 
 # Begin the main program loop
-map = map.get_matrix(seed = 3, rows = 10, cols = 10)
+map = map.get_matrix(seed = 3, rows = 100, cols = 60)
 rows = len(map)
 cols = len(map[0])
 myScene = Scene(600, 600)

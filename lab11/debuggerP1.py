@@ -99,8 +99,9 @@ def interpolate(a, b, t):
     return (t-a)/(b-a)
 
 # Begin the main program loop
-map = map.get_matrix(rows = 10, cols = 10, seed = 3, delta = 3, maxval = 20)
-threshold = 6.5
+map = [[1, 6],
+       [5, 2]]
+threshold = 3
 print(map)
 rows = len(map)
 cols = len(map[0])
