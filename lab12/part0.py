@@ -1,5 +1,4 @@
 import pyglet
-from pyglet.window import mouse, key
 from pyglet.gl import *
 import numpy as py
 import sys
