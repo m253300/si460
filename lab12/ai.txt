@@ -1,0 +1,120 @@
+Input:
+Write a function in python which creates a 2D array where each value in the array represents the height of a sphere of some radius at that point. Write the function so the only input is the radius and an increment value. The increment represents how small each piece is. So if the increment is 1 and radius is 20, then the matrix would be a 20x20, but if the increment is 2 then the output is 10x10. Do not use numpy.meshgrid. Do not use numpy.zeros.
+
+
+Output:
+import numpy as np
+import matplotlib.pyplot as plt
+
+def create_sphere_height_map(radius, increment):
+    """
+    Creates a 2D array representing the height of a sphere at each point, without using numpy.meshgrid or numpy.zeros.
+
+    Args:
+        radius (float): The radius of the sphere.
+        increment (float): The step size for the grid.
+
+    Returns:
+        list of lists: A 2D list representing the height of the sphere.
+    """
+
+    size = int(2 * radius / increment) + 1
+    height_map = [[0.0 for _ in range(size)] for _ in range(size)] #Create a 2D list instead of numpy array
+
+    for i in range(size):
+        for j in range(size):
+            x = -radius + i * increment
+            y = -radius + j * increment
+            distance_from_center = np.sqrt(x**2 + y**2)
+            height_map[j][i] = np.sqrt(np.maximum(0, radius**2 - distance_from_center**2))
+
+    return height_map
+
+# Example usage:
+radius = 20
+increment = 1
+
+height_map = create_sphere_height_map(radius, increment)
+
+# Convert to numpy array for visualization
+height_map_np = np.array(height_map)
+
+plt.imshow(height_map_np, cmap='viridis')
+plt.colorbar(label='Height')
+plt.title('Sphere Height Map')
+plt.show()
+
+radius = 20
+increment = 2
+
+height_map = create_sphere_height_map(radius, increment)
+height_map_np = np.array(height_map)
+
+plt.imshow(height_map_np, cmap='viridis')
+plt.colorbar(label='Height')
+plt.title('Sphere Height Map')
+plt.show()
+
+radius = 30
+increment = 0.5
+
+height_map = create_sphere_height_map(radius, increment)
+height_map_np = np.array(height_map)
+
+plt.imshow(height_map_np, cmap='viridis')
+plt.colorbar(label='Height')
+plt.title('Sphere Height Map')
+plt.show()
+
+Input:
+Write a function which produces a similar 2D array but uses the sombrero function. Write it without using numpy.meshgrid
+
+Output:
+Okay, here's the create_sombrero_height_map function rewritten to avoid using numpy.meshgrid.
+import numpy as np
+import matplotlib.pyplot as plt
+
+def create_sombrero_height_map(size, center=None):
+    """
+    Creates a 2D array representing the height of the Sombrero function at each point,
+    without using numpy.meshgrid.
+
+    Args:
+        size (int): The size of the 2D array (size x size).
+        center (tuple, optional): The (x, y) coordinates of the center of the function.
+                                 If None, the center is at the middle of the array.
+
+    Returns:
+        list of lists: A 2D array representing the height of the Sombrero function.
+    """
+    if center is None:
+        center = (size // 2, size // 2)
+
+    height_map = [[0.0 for _ in range(size)] for _ in range(size)]
+
+    for i in range(size):
+        for j in range(size):
+            x = i
+            y = j
+            r = np.sqrt((x - center[0])**2 + (y - center[1])**2)
+            if r == 0:
+                height_map[j][i] = 1.0
+            else:
+                height_map[j][i] = np.sin(r) / r
+    return height_map
+
+# Example usage:
+size = 50
+height_map = create_sombrero_height_map(size)
+
+# Convert to numpy array for visualization
+height_map_np = np.array(height_map)
+
+plt.imshow(height_map_np, cmap='viridis')
+plt.colorbar(label='Height')
+plt.title('Sombrero Function Height Map')
+plt.show()
+
+Key Change:
+
+The core logic of the function is the same, but the x and y coordinates are generated using nested loops instead of np.meshgrid. This calculates the r value for each point in the 2D array without relying on the meshgrid functionality.

@@ -41,8 +41,21 @@ class Scene:
                 glRotatef(x[0], x[1], x[2], x[3])
             drawMesh(self.map)
 
-        def calcColor(colors):
-            return 0.3+(0.7/self.maxvalue)*(len(colors))
+        def colorDict(map):
+            flatMap = [item for sublist in map for item in sublist]
+            flatMapUnique = list(set(flatMap))
+            flatMapUnique.sort()
+            min = flatMapUnique[0]
+            max = flatMapUnique[-1]
+            inc = 0.7/len(flatMapUnique)
+            colors = {}
+
+            i = 0
+            for x in flatMapUnique:
+                colors[x] = (0.3 + inc*i)
+                i+=1
+
+            return colors
 
         def drawMesh(map):
             rows = len(map)
@@ -50,29 +63,21 @@ class Scene:
 
             tlc = (-(cols-1)/2, (rows-1)/2)
 
-            colors = {}
+            colors = colorDict(map)
 
             for i in range(rows-1):
                 for j in range(cols-1):
                     # top-left (tl) - (i, j)
                     tl = map[i][j]
-                    if not tl in colors.keys():
-                        colors[tl] = calcColor(colors)
 
                     # top-right (tr) - (i, j+1)
                     tr = map[i][j+1]
-                    if not tr in colors.keys():
-                        colors[tr] = calcColor(colors)
 
                     # bottom-right (br) - (i+1, j+1)
                     br = map[i+1][j+1]
-                    if not br in colors.keys():
-                        colors[br] = calcColor(colors)
 
                     # bottom-left (bl) - (i+1, j)
                     bl = map[i+1][j]
-                    if not bl in colors.keys():
-                        colors[bl] = calcColor(colors)
 
                     #tl, tr, bl
                     glBegin(GL_TRIANGLES)
@@ -157,5 +162,5 @@ class Scene:
             
 if __name__ == '__main__':
     map = map.get_matrix(seed = 1117, rows = 10, cols = 10, maxval = 8)
-    myGame = Scene(caption="Koutrakos - Lab 12 - Part 1", map=map, maxvalue=8)
+    myGame = Scene(caption="Koutrakos - Lab 12 - Part 2", map=map, maxvalue=8)
     pyglet.app.run()
