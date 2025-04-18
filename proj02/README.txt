@@ -1,5 +1,7 @@
 Caleb Koutrakos - 253300
 
+Run py using "python3 game.py mylevel"
+
 Minimum Specifications (Statement of Work)
 
 1. A Single Player - This is the game character that the user will play, which must:
