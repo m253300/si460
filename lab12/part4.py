@@ -165,7 +165,7 @@ def sombrero(size):
     height_map = [[0.0 for _ in range(size)] for _ in range(size)]
 
     for i in range(size):
-        scale = 3
+        scale = 15
         for j in range(size):
             x = i
             y = j
