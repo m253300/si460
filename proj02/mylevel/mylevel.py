@@ -6,10 +6,6 @@ import pyglet
 # Our own Game Libraries
 import sprites, config
 
-# Speed up the game start process by not creating the sprite dictionary everytime
-import pickle
-import os
-
 # SI460 Level Definition
 class Level:
     def __init__(self, sprites, hero, enemies=[]):
@@ -75,13 +71,7 @@ class Level:
 
 # Load all game sprites
 print('Loading Sprites...')
-if os.path.exists("spritedict.txt") and os.path.getsize("spritedict.txt") > 0:
-    with open("spritedict.pkl", "rb") as file:
-        gameSprites = pickle.load(file)
-else:
-    with open("spritedict.pkl", "wb") as file:
-        gameSprites = sprites.loadAllImages(config.spritespath)
-        pickle.dump(gameSprites, file)
+gameSprites = sprites.loadAllImages(config.spritespath)
 
 # Load in the hero
 print('Loading the Hero...')
