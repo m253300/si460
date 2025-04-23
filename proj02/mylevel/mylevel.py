@@ -64,6 +64,7 @@ class Level:
 
         # Draw the enemies
         for enemy in self.enemies:
+            # check collision for this enemy and the player, and for this enemy and the world
             enemy.draw(t)
 
         # Draw the hero.

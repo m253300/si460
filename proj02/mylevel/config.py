@@ -26,8 +26,8 @@ levelDefinition = '''
 05          hl hr
 04
 03 um ur
-02 mm mr
-01 mm cr wl um um um um um um um um ur
+02 mm mr                            cr
+01 mm cr wl um um       um um um um ur
 00 mm mm mm mm mm mm mm mm mm mm mm mr
 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16
 '''
@@ -120,3 +120,5 @@ from layout import positionEnemies, board2grid
 enemies = positionEnemies(enemyDefinition)
 level, rows, cols = board2grid(levelDefinition, tilepath, returnSize=True)
 goals = board2grid(goalDefinition, goalpath)
+
+gravity = 10
