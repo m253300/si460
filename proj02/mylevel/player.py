@@ -99,55 +99,53 @@ class Player:
         self.playerSprite.draw()
 
     def levelCollision(self, velocity):
-        # all player values: x & y position, sprite width & height
-        px = self.playerSprite.x
+        # Player values': x & y position, sprite width
+        px = self.playerSprite.x+velocity
         py = self.playerSprite.y
-        #pwidth = self.playerSprite.width
-        pheight = self.playerSprite.height
+        pwidth = self.playerSprite.width
 
-        # player's lower
-        #pll = (px, py)
-        # player's upper
-        #pur = (px, py + (pheight * 0.75))
+        roundCol = config.round(px/config.width)
+        leftCol = (px-pwidth/2)/config.width
+        rightCol = (px+pwidth/2)/config.width
         
         # determine row at which the player's lower is located on the level grid
         rowLow = math.floor(py/config.height)
-        #print(rowLow)
-        # player's upper row
-        #rowUp = (py + (pheight * 0.75))/config.height
-        #print(rowUp)
+        if rowLow-1 < 0:
+            rowLow = 1
 
-        # player's column side
-        #col = math.floor(px/config.width)
-        col = round(px/config.width)
-        #print(col)
-        
-        #print(config.level[rowLow][col])
+        canMoveLeft = (velocity < 0 and roundCol-1 not in config.level[rowLow].keys() and leftCol > roundCol)
+        canMoveRight = (velocity > 0 and roundCol not in config.level[rowLow].keys() and rightCol < roundCol)
 
-        #negative/going left and there is nothing to the left of the player
-        if velocity < 0 and col-1 not in config.level[rowLow].keys():
-            #print(config.level[rowLow].keys())
-            return velocity
-        elif velocity > 0 and col not in config.level[rowLow].keys():
+        if canMoveLeft or canMoveRight:
             return velocity
         else:
-            #print(px - config.level[rowLow][col-1].x)
             return 0
-
-
-        #if player collides with wall with given velocity, then adjust the velocity such that 0 <= new velocity <= given velocity so that in the next update
-        #else just return the velocity as is
 
     def applyGravity(self):
         g = config.gravity
         px = self.playerSprite.x
         py = self.playerSprite.y
+        row = py/config.height
         rowLow = math.floor(py/config.height)
-        col = round(px/config.width)
+        realCol = px/config.width
+        roundCol = config.round(px/config.width)
+        pwidth = self.playerSprite.width
+        leftCol = (px-pwidth/2)/config.width
+        rightCol = (px+pwidth/2)/config.width
+
+        # get leftCol and rightCol
+        # if either one is on solid ground, then do not fall
+        # if both are not then fall until row == rowLow
 
         # prevents crashing when character falls out too low
-        if rowLow < 0:
-            rowLow = 0
+        if rowLow-1 < 0:
+            rowLow = 1
+
+        print(f"row: {row}, rowLow: {rowLow}")
+        print(f"col: {realCol}, roundCol: {roundCol}")
+        print(f"leftCol: {leftCol}, rightCol: {rightCol}")
 
         #if there is not object below character then drop them
-        print(config.level[rowLow-1])
+        #print(config.level[rowLow-1])
+        if roundCol-1 not in config.level[rowLow-1].keys() or row != rowLow:
+            self.playerSprite.y -= g
