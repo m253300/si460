@@ -2,6 +2,7 @@
 
 # Important Libraries
 import pyglet, config
+from pyglet.window import key
 
 # Our Hero Class
 class Player:
@@ -53,32 +54,37 @@ class Player:
                                              self.animationX,
                                              self.animationY)
 
-    # Move the character
-    #left arrow   65361  
-    #right arrow  65363  
-    #left shift   65505  
-    #right shift  65506 
+    # I asked gemini to rewrite this to make use of config.keyMappings and this is the result from promp 1 and 1.5 in ai.txt
     def movement(self, t=0, keyTracking={}):
-        keys = keyTracking.keys()
         velocity = 0
+        direction = None  # Initialize direction
+        actions = set()    # Use a set to store actions
 
         if len(keyTracking) != 0:
-            if 65505 in keys or 65506 in keys:
+            for pressed_key in keyTracking:
+                action = config.keyMappings[pressed_key]
+                if action:  # Only process valid actions
+                    actions.add(action)
+
+            if 'run' in actions:
                 velocity = 9
             else:
                 velocity = 3
 
-            if 65361 in keys:
+            if 'left' in actions:
+                direction = "Left"
                 if self.mode != "Run" or self.facing != "Left":
                     self.changeSprite("Run", "Left")
                 else:
-                    self.playerSprite.x = self.playerSprite.x - velocity
-            elif 65363 in keys:
+                    self.playerSprite.x -= velocity
+            elif 'right' in actions:
+                direction = "Right"
                 if self.mode != "Run" or self.facing != "Right":
                     self.changeSprite("Run", "Right")
                 else:
-                    self.playerSprite.x = self.playerSprite.x + velocity
-        elif self.mode != "Idle":
+                    self.playerSprite.x += velocity
+
+        if direction is None and self.mode != "Idle":
             self.changeSprite("Idle")
         
     # Draw our character

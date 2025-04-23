@@ -110,10 +110,10 @@ keyMappings = {key.LSHIFT: 'run',    key.RSHIFT: 'run',
                key.LALT:   'attack', key.RALT:   'attack',
                key.LCTRL:  'shoot',  key.RCTRL:  'shoot',
                key.SPACE:  'jump',
-               key.RIGHT:  'right',
-               key.LEFT:   'left',
-               key.UP:     'up',
-               key.DOWN:   'down'}
+               key.RIGHT:  'right',  key.D:      'right',
+               key.LEFT:   'left',   key.A:      'left',
+               key.UP:     'up',     key.W:      'up',
+               key.DOWN:   'down',   key.S:      'down'}
 
 # Determine some very useful information needed in our game.
 from layout import positionEnemies, board2grid
