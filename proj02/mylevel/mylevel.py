@@ -83,7 +83,7 @@ hero = Player(gameSprites,
               config.playerSpriteSpeed,
               config.playerSpriteScale,
               True,
-              config.playerStartCol * config.width,
+              config.playerStartCol * config.width - 0.5 * config.width,
               config.playerStartRow * config.height)
 
 # Load in the Enemies

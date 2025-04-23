@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # Important Libraries
-import pyglet, config, math
+import config, math
 
 # Our Hero Class
 class Player:
@@ -76,7 +76,6 @@ class Player:
                 if self.mode != "Run" or self.facing != "Left":
                     self.changeSprite("Run", "Left")
                 else: 
-                    # change to elif !levelCollision(velocity)... but then where would i check for enemy collision????
                     velocity *= -1
                     velocity = self.levelCollision(velocity)
                     self.playerSprite.x += velocity
@@ -91,7 +90,7 @@ class Player:
         if direction is None and self.mode != "Idle":
             self.changeSprite("Idle")
 
-        self.applyGravity()
+        #self.applyGravity()
         
     # Draw our character
     def draw(self, t=0, keyTracking={}, *other):
@@ -104,17 +103,23 @@ class Player:
         py = self.playerSprite.y
         pwidth = self.playerSprite.width
 
-        roundCol = config.round(px/config.width)
-        leftCol = (px-pwidth/2)/config.width
-        rightCol = (px+pwidth/2)/config.width
+        leftColActual = (px-pwidth/2)/config.width
+        leftColRounded = math.floor(leftColActual)
+        rightColActual = (px+pwidth/2)/config.width
+        rightColRounded = math.floor(rightColActual)
         
         # determine row at which the player's lower is located on the level grid
         rowLow = math.floor(py/config.height)
         if rowLow-1 < 0:
             rowLow = 1
 
-        canMoveLeft = (velocity < 0 and roundCol-1 not in config.level[rowLow].keys() and leftCol > roundCol)
-        canMoveRight = (velocity > 0 and roundCol not in config.level[rowLow].keys() and rightCol < roundCol)
+        # DEBUG
+        # print("------------------")
+        # print(f"leftActual: {leftColActual}, leftRounded: {leftColRounded}")
+        # print(f"rightActual: {rightColActual}, rightRounded: {rightColRounded}")
+
+        canMoveLeft = (velocity < 0 and leftColRounded not in config.level[rowLow].keys() and leftColActual >= leftColRounded-1)
+        canMoveRight = (velocity > 0 and rightColRounded not in config.level[rowLow].keys() and rightColActual <= rightColRounded+1)
 
         if canMoveLeft or canMoveRight:
             return velocity
@@ -127,6 +132,9 @@ class Player:
         py = self.playerSprite.y
         row = py/config.height
         rowLow = math.floor(py/config.height)
+        # prevents crashing when character falls too low
+        if rowLow-1 < 0:
+            rowLow = 1
         realCol = px/config.width
         roundCol = config.round(px/config.width)
         pwidth = self.playerSprite.width
@@ -134,18 +142,14 @@ class Player:
         rightCol = (px+pwidth/2)/config.width
 
         # get leftCol and rightCol
+        # leftCol will always be rounded down
+        roundLeftCol = int(leftCol)
         # if either one is on solid ground, then do not fall
         # if both are not then fall until row == rowLow
 
-        # prevents crashing when character falls out too low
-        if rowLow-1 < 0:
-            rowLow = 1
-
+        #if there is not object below character then drop them
         print(f"row: {row}, rowLow: {rowLow}")
         print(f"col: {realCol}, roundCol: {roundCol}")
         print(f"leftCol: {leftCol}, rightCol: {rightCol}")
-
-        #if there is not object below character then drop them
-        #print(config.level[rowLow-1])
         if roundCol-1 not in config.level[rowLow-1].keys() or row != rowLow:
             self.playerSprite.y -= g
