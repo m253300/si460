@@ -90,7 +90,7 @@ class Player:
         if direction is None and self.mode != "Idle":
             self.changeSprite("Idle")
 
-        #self.applyGravity()
+        self.applyGravity()
         
     # Draw our character
     def draw(self, t=0, keyTracking={}, *other):
@@ -131,25 +131,27 @@ class Player:
         px = self.playerSprite.x
         py = self.playerSprite.y
         row = py/config.height
-        rowLow = math.floor(py/config.height)
         # prevents crashing when character falls too low
+        rowLow = math.floor(py/config.height)
         if rowLow-1 < 0:
             rowLow = 1
-        realCol = px/config.width
-        roundCol = config.round(px/config.width)
         pwidth = self.playerSprite.width
-        leftCol = (px-pwidth/2)/config.width
-        rightCol = (px+pwidth/2)/config.width
+        leftColActual = (px-pwidth/2)/config.width
+        leftColRounded = math.floor(leftColActual)
+        rightColActual = (px+pwidth/2)/config.width
+        rightColRounded = math.floor(rightColActual)
 
         # get leftCol and rightCol
-        # leftCol will always be rounded down
-        roundLeftCol = int(leftCol)
         # if either one is on solid ground, then do not fall
         # if both are not then fall until row == rowLow
+        # if there is not object below character then drop them
 
-        #if there is not object below character then drop them
-        print(f"row: {row}, rowLow: {rowLow}")
-        print(f"col: {realCol}, roundCol: {roundCol}")
-        print(f"leftCol: {leftCol}, rightCol: {rightCol}")
-        if roundCol-1 not in config.level[rowLow-1].keys() or row != rowLow:
+        # true if object below left foot
+        groundOnLeft = leftColRounded in config.level[rowLow-1].keys() 
+
+        # check right food
+        # true if object below right foot
+        groundOnRight = rightColRounded in config.level[rowLow-1].keys() 
+
+        if (not groundOnLeft and not groundOnRight) or row != rowLow:
             self.playerSprite.y -= g
