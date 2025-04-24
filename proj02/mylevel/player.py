@@ -102,16 +102,14 @@ class Player:
             self.changeSprite('Idle', self.facing)
 
         self.updateLocation(t)
-        #print(t - self.time)
 
     def updateLocation(self, t):
         time = t - self.time
         position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
+        #now check if this position[0] is a valid position using the levelCollision function
+        #i will need to modify that function to either return true/false when given position[0], or return a valid x-value position to replace position[0]
         self.playerSprite.x = position[0]
         #self.playerSprite.y = position[1]
-        # self.position = position
-        #print(self.velocity)
-        print(f"({t-self.time}, {position[0]})")
 
     # i need to turn this into a true/false return so that if level collision occurs then it returns false, otherwise true
     def levelCollision(self, velocity):
