@@ -43,8 +43,9 @@ class Player:
         # if 'left' is triggered at world time 11.6 seconds then this will be set to 11.6 and in the movement function it will calculate time as time = worldtime-self.time to determine how long the movement has been occuring
         # this will be needed for gravity and jumping most importantly
         self.time = 0
+        self.timeFalling = 0
         # this will keep track of the current action and will be needed for jumping and possibly other animations unless I am just stupid and need better conditionals because the self.mode already exists
-        self.currentAction = None
+        self.flags = {'jumping' : False}
 
     # Build the initial character
     def changeSprite(self, mode=None, facing=None):
@@ -73,104 +74,99 @@ class Player:
                 if key in config.keyMappings:
                     modes.append(config.keyMappings[key])
         if 'right' in modes:
-            if 'run' in modes and not numpy.array_equal(self.velocity, numpy.array([9, 0])):
+            if 'run' in modes and self.velocity[0] != 9:
+                #not numpy.array_equal(self.velocity, numpy.array([9, 0])):
                 self.time = t
                 self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
-                self.velocity = numpy.array([9,0])
+                self.velocity[0] = 9 #numpy.array([9,0])
             if self.mode != 'Run' or self.facing != 'Right':
-                self.velocity = numpy.array([3,0])
+                self.velocity[0] = 3# = numpy.array([3,0])
                 self.time = t
                 self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
                 self.changeSprite('Run', 'Right')
         elif 'left' in modes:
-            if 'run' in modes and not numpy.array_equal(self.velocity, numpy.array([-9,0])):
-                print("in")
-                print(self.velocity)
-                self.velocity = numpy.array([-9,0])
+            if 'run' in modes and self.velocity[0] != -9:# not numpy.array_equal(self.velocity, numpy.array([-9,0])):
+                self.velocity[0] = -9# = numpy.array([-9,0])
                 self.time = t
                 self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
             if self.mode != 'Run' or self.facing != 'Left':
-                self.velocity = numpy.array([-3,0])
+                self.velocity[0] = -3# = numpy.array([-3,0])
                 self.time = t
                 self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
                 self.changeSprite('Run', 'Left')
-        elif self.mode != 'Idle' and modes == []:
+        elif 'jump' in modes:
+            if self.mode != 'Jump':
+                self.flags['jumping'] = True
+                self.changeSprite('Jump', self.facing)
+        elif 'attack' in modes:
+            self.flags['jumping'] = False
+        elif self.mode != 'Idle' and modes == [] and not self.flags['jumping']:
             # Set velocity to 0 since idle
             self.time = t
-            self.velocity = numpy.array([0,0])
+            self.velocity[0] = 0
             self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
             self.changeSprite('Idle', self.facing)
 
         self.updateLocation(t)
 
     def updateLocation(self, t):
+        # LATERAL MOVEMENT
         time = t - self.time
         position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
-        #now check if this position[0] is a valid position using the levelCollision function
-        #i will need to modify that function to either return true/false when given position[0], or return a valid x-value position to replace position[0]
-        self.playerSprite.x = position[0]
-        #self.playerSprite.y = position[1]
-
-    # i need to turn this into a true/false return so that if level collision occurs then it returns false, otherwise true
-    def levelCollision(self, velocity):
-        # Player values': x & y position, sprite width
-        px = self.playerSprite.x+velocity
-        py = self.playerSprite.y
-        pwidth = self.playerSprite.width
-
-        leftColActual = (px-pwidth/2)/config.width
-        leftColRounded = math.floor(leftColActual)
-        rightColActual = (px+pwidth/2)/config.width
-        rightColRounded = math.floor(rightColActual)
-        
-        # determine row at which the player's lower is located on the level grid
-        rowLow = math.floor(py/config.height)
-        if rowLow-1 < 0:
-            rowLow = 1
-
-        # DEBUG
-        # print("------------------")
-        # print(f"leftActual: {leftColActual}, leftRounded: {leftColRounded}")
-        # print(f"rightActual: {rightColActual}, rightRounded: {rightColRounded}")
-
-        canMoveLeft = (velocity < 0 and leftColRounded not in config.level[rowLow].keys() and leftColActual >= leftColRounded-1)
-        canMoveRight = (velocity > 0 and rightColRounded not in config.level[rowLow].keys() and rightColActual <= rightColRounded+1)
-
-        if canMoveLeft or canMoveRight:
-            return velocity
+        #now check if this position[0] is a valid position using the canMoveLaterally function
+        if self.canMoveLaterally(position[0]):
+            self.playerSprite.x = position[0]
         else:
-            return 0
+            self.position[0] = self.playerSprite.x
+            self.velocity[0] = 0
 
-    def applyGravity(self):
-        g = config.gravity
-        px = self.playerSprite.x
+
+        # DOWNWARD MOVEMENT
+        #now check if player needs has ground below him so check if position[1] is a valid position
+        time = t - self.timeFalling
+        position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
+        if self.canMoveDownward(position[1]):
+            self.timeFalling = t
+            print(time)
+            self.playerSprite.y = position[1]
+        else:
+            self.position[1] = self.playerSprite.y
+            self.velocity[1] = 0
+
+    # Returns True if player can move laterally/nothing is in the player's way. Returns False if unable to move/something is in the way
+    def canMoveLaterally(self, new_x_position):
         py = self.playerSprite.y
-        row = py/config.height
-        # prevents crashing when character falls too low
-        rowLow = math.floor(py/config.height)
-        if rowLow-1 < 0:
-            rowLow = 1
-        pwidth = self.playerSprite.width
-        leftColActual = (px-pwidth/2)/config.width
-        leftColRounded = math.floor(leftColActual)
-        rightColActual = (px+pwidth/2)/config.width
-        rightColRounded = math.floor(rightColActual)
 
-        # get leftCol and rightCol
-        # if either one is on solid ground, then do not fall
-        # if both are not then fall until row == rowLow
-        # if there is not object below character then drop them
+        # ox is adjusted to account for the sprite anchor being in the center of the player sprite
+        ox = None
+        if self.facing == 'Right':
+            ox = math.floor((new_x_position + self.playerSprite.width * 0.5)/config.width)
+        else:
+            ox = math.floor((new_x_position - self.playerSprite.width * 0.5)/config.width)
+        oy = math.floor(py/config.height)
+        oy2 = math.floor((py + (self.playerSprite.height * 0.75))/config.height)
 
-        # true if object below left foot
-        groundOnLeft = leftColRounded in config.level[rowLow-1].keys() 
+        #check if there is an object in the next x position
+        if (oy in config.level and ox in config.level[oy]) or (oy2 in config.level and ox in config.level[oy2]):
+            return False
+        return True
 
-        # check right food
-        # true if object below right foot
-        groundOnRight = rightColRounded in config.level[rowLow-1].keys() 
+    # Returns True if player can move downward/nothing is below either of the player's feet. Returns False if unable to fall downward/the player has their foot one something
+    def canMoveDownward(self, new_y_position):
+        # ox is adjusted to account for the sprite anchor being in the center of the player sprite
+        ox = None
+        if self.facing == 'Right':
+            ox = math.floor((self.playerSprite.x - self.playerSprite.width * 0.5)/config.width)
+        else:
+            ox = math.floor((self.playerSprite.x + self.playerSprite.width * 0.5)/config.width)
+        oy = math.floor(self.playerSprite.y/config.height)
 
-        if (not groundOnLeft and not groundOnRight) or row != rowLow:
-            self.changeSprite("Glide")
-            self.playerSprite.y -= g
+        print(f"oy = {oy}, playery = {self.playerSprite.y/config.height}")
+        
+        if (oy in config.level and ox not in config.level[oy]) or (oy not in config.level):
+            return True
+        else:
+            return False
 
     # Draw our character
     def draw(self, t=0, keyTracking={}, *other):

@@ -94,5 +94,5 @@ if __name__ == '__main__':
     level =  getattr(importlib.import_module(levelName), 'level')
 
     print('Starting Game...')
-    myGame = Game(800, 600, "SI460 Game", level)
+    myGame = Game(800, 800, "SI460 Game", level)
     pyglet.app.run()
