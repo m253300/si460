@@ -42,7 +42,9 @@ class Player:
         # this will be set to the time in movement when a button is pressed
         # if 'left' is triggered at world time 11.6 seconds then this will be set to 11.6 and in the movement function it will calculate time as time = worldtime-self.time to determine how long the movement has been occuring
         # this will be needed for gravity and jumping most importantly
-        self.time = 0 
+        self.time = 0
+        # this will keep track of the current action and will be needed for jumping and possibly other animations unless I am just stupid and need better conditionals because the self.mode already exists
+        self.currentAction = None
 
     # Build the initial character
     def changeSprite(self, mode=None, facing=None):
@@ -71,19 +73,45 @@ class Player:
                 if key in config.keyMappings:
                     modes.append(config.keyMappings[key])
         if 'right' in modes:
-            self.playerSprite.x = self.playerSprite.x + 3
-            if 'run' in modes:
-                self.playerSprite.x = self.playerSprite.x + 6
+            if 'run' in modes and not numpy.array_equal(self.velocity, numpy.array([9, 0])):
+                self.time = t
+                self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
+                self.velocity = numpy.array([9,0])
             if self.mode != 'Run' or self.facing != 'Right':
+                self.velocity = numpy.array([3,0])
+                self.time = t
+                self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
                 self.changeSprite('Run', 'Right')
         elif 'left' in modes:
-            self.playerSprite.x = self.playerSprite.x - 3
-            if 'run' in modes:
-                self.playerSprite.x = self.playerSprite.x - 6
+            if 'run' in modes and not numpy.array_equal(self.velocity, numpy.array([-9,0])):
+                print("in")
+                print(self.velocity)
+                self.velocity = numpy.array([-9,0])
+                self.time = t
+                self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
             if self.mode != 'Run' or self.facing != 'Left':
+                self.velocity = numpy.array([-3,0])
+                self.time = t
+                self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
                 self.changeSprite('Run', 'Left')
         elif self.mode != 'Idle' and modes == []:
+            # Set velocity to 0 since idle
+            self.time = t
+            self.velocity = numpy.array([0,0])
+            self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
             self.changeSprite('Idle', self.facing)
+
+        self.updateLocation(t)
+        #print(t - self.time)
+
+    def updateLocation(self, t):
+        time = t - self.time
+        position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
+        self.playerSprite.x = position[0]
+        #self.playerSprite.y = position[1]
+        # self.position = position
+        #print(self.velocity)
+        print(f"({t-self.time}, {position[0]})")
 
     # i need to turn this into a true/false return so that if level collision occurs then it returns false, otherwise true
     def levelCollision(self, velocity):
