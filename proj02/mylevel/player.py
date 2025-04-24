@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # Important Libraries
-import config, math
+import config, numpy, math
 
 # Our Hero Class
 class Player:
@@ -34,6 +34,16 @@ class Player:
         # Build the starting character sprite
         self.changeSprite()
 
+        # set up the foundations for the character movement
+        self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
+        self.pixels = numpy.array([config.pixels_per_meter, config.pixels_per_meter])
+        self.acceleration = numpy.array([0, config.gravity])
+        self.velocity = numpy.array([0, 0])
+        # this will be set to the time in movement when a button is pressed
+        # if 'left' is triggered at world time 11.6 seconds then this will be set to 11.6 and in the movement function it will calculate time as time = worldtime-self.time to determine how long the movement has been occuring
+        # this will be needed for gravity and jumping most importantly
+        self.time = 0 
+
     # Build the initial character
     def changeSprite(self, mode=None, facing=None):
         if mode is not None:
@@ -53,50 +63,29 @@ class Player:
                                              self.animationX,
                                              self.animationY)
 
-    # I asked gemini to rewrite this to make use of config.keyMappings and this is the result from promp 1 and 1.5 in ai.txt with slight tweaks
+    # Move the character
     def movement(self, t=0, keyTracking={}):
-        velocity = 0
-        direction = None  # Initialize direction
-        actions = set()    # Use a set to store actions
+        modes = []
+        if keyTracking != {}:
+            for key in keyTracking:
+                if key in config.keyMappings:
+                    modes.append(config.keyMappings[key])
+        if 'right' in modes:
+            self.playerSprite.x = self.playerSprite.x + 3
+            if 'run' in modes:
+                self.playerSprite.x = self.playerSprite.x + 6
+            if self.mode != 'Run' or self.facing != 'Right':
+                self.changeSprite('Run', 'Right')
+        elif 'left' in modes:
+            self.playerSprite.x = self.playerSprite.x - 3
+            if 'run' in modes:
+                self.playerSprite.x = self.playerSprite.x - 6
+            if self.mode != 'Run' or self.facing != 'Left':
+                self.changeSprite('Run', 'Left')
+        elif self.mode != 'Idle' and modes == []:
+            self.changeSprite('Idle', self.facing)
 
-        if len(keyTracking) != 0:
-            for pressed_key in keyTracking:
-                if pressed_key in config.keyMappings:
-                    actions.add(config.keyMappings[pressed_key])
-
-            if 'run' in actions:
-                velocity = 10
-            else:
-                velocity = 5
-
-            if 'left' in actions and 'right' in actions:
-                self.changeSprite("Idle")
-            elif 'left' in actions:
-                direction = "Left"
-                if self.mode != "Run" or self.facing != "Left":
-                    self.changeSprite("Run", "Left")
-                else: 
-                    velocity *= -1
-                    velocity = self.levelCollision(velocity)
-                    self.playerSprite.x += velocity
-            elif 'right' in actions:
-                direction = "Right"
-                if self.mode != "Run" or self.facing != "Right":
-                    self.changeSprite("Run", "Right")
-                else:
-                    velocity = self.levelCollision(velocity)
-                    self.playerSprite.x += velocity
-
-        if direction is None and self.mode != "Idle":
-            self.changeSprite("Idle")
-
-        self.applyGravity()
-        
-    # Draw our character
-    def draw(self, t=0, keyTracking={}, *other):
-        self.movement(t, keyTracking)
-        self.playerSprite.draw()
-
+    # i need to turn this into a true/false return so that if level collision occurs then it returns false, otherwise true
     def levelCollision(self, velocity):
         # Player values': x & y position, sprite width
         px = self.playerSprite.x+velocity
@@ -154,4 +143,10 @@ class Player:
         groundOnRight = rightColRounded in config.level[rowLow-1].keys() 
 
         if (not groundOnLeft and not groundOnRight) or row != rowLow:
+            self.changeSprite("Glide")
             self.playerSprite.y -= g
+
+    # Draw our character
+    def draw(self, t=0, keyTracking={}, *other):
+        self.movement(t, keyTracking)
+        self.playerSprite.draw()

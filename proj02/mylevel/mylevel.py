@@ -24,32 +24,21 @@ class Level:
         self.enemies = enemies
 
         # Music in the Background
-        # self.backgroundMusic = pyglet.media.Player()
-        # self.backgroundMusic.queue(pyglet.media.load(config.background_music, streaming=True))
-        # self.backgroundMusic.eos_action = 'loop'
-        # self.backgroundMusic.loop = True
-        # self.backgroundMusic.play()
+        # self.sound = pyglet.media.Player()
+        # self.sound.queue(pyglet.media.load(config.background_music, streaming=True))
+        # self.sound.eos_action = 'loop'
+        # self.sound.loop = True
+        # self.sound.play()
+        # self.soundPlaying = True
 
     # Here is a complete drawBoard function which will draw the terrain.
     # Lab Part 1 - Draw the board here
-
-    # {0: {0: <ImageData 128x128>, 1: <ImageData 128x128>, 2: <ImageData 128x128>, 3: <ImageData 128x128>, 4: <ImageData 128x128>, 5: <ImageData 128x128>, 6: <ImageData 128x128>, 7: <ImageData 128x128>, 8: <ImageData 128x128>, 9: <ImageData 128x128>, 10: <ImageData 128x128>, 11: <ImageData 128x128>}, 
-    # 1: {0: <ImageData 128x128>, 1: <ImageData 128x128>, 2: <ImageData 128x128>, 3: <ImageData 128x128>, 4: <ImageData 128x128>, 5: <ImageData 128x128>, 6: <ImageData 128x128>, 7: <ImageData 128x128>, 8: <ImageData 128x128>, 9: <ImageData 128x128>, 10: <ImageData 128x128>, 11: <ImageData 128x128>}, 
-    # 2: {0: <ImageData 128x128>, 1: <ImageData 128x128>}, 
-    # 3: {0: <ImageData 128x128>, 1: <ImageData 128x128>}, 
-    # 5: {3: <ImageData 128x93>, 4: <ImageData 128x93>}, 
-    # 7: {6: <ImageData 128x93>, 7: <ImageData 128x93>, 8: <ImageData 128x93>, 9: <ImageData 128x93>, 10: <ImageData 128x93>, 11: <ImageData 128x93>, 12: <ImageData 128x93>, 13: <ImageData 128x93>, 14: <ImageData 128x93>}, 
-    # 10: {12: <ImageData 128x93>, 13: <ImageData 128x93>}}
-
     def drawBoard(self, level, delta_x=0, delta_y=0, height=50, width=50):
-        # iterate through the level dictionary and blit all the images to the screen
-        for yAxis, innerLevel in level.items():
-            for xAxis, image in innerLevel.items():
-                sprite = pyglet.sprite.Sprite(image, xAxis*width, yAxis*height)
-                sprite.scale_x = width/image.width
-                sprite.scale_y = height/image.height
-                sprite.draw()
-
+        for row in level.keys():
+            for col in level[row].keys():
+                level[row][col].anchor_x = 0
+                level[row][col].anchor_y = 0
+                level[row][col].blit(col*width+delta_x,row*height+delta_y, height=height, width=width)
 
     def draw(self, t=0, width=800, height=600, keyTracking={}, mouseTracking=[], *other):
 
@@ -64,7 +53,6 @@ class Level:
 
         # Draw the enemies
         for enemy in self.enemies:
-            # check collision for this enemy and the player, and for this enemy and the world
             enemy.draw(t)
 
         # Draw the hero.
@@ -79,7 +67,7 @@ print('Loading the Hero...')
 from player import Player
 hero = Player(gameSprites,
               sprites.buildSprite,
-              "hero", "Idle", "Right",
+              "hero", "Attack", "Right",
               config.playerSpriteSpeed,
               config.playerSpriteScale,
               True,
