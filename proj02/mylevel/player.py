@@ -102,6 +102,7 @@ class Player:
             if self.mode != 'Jump':
                 self.flags['jumping'] = True
                 self.changeSprite('Jump', self.facing)
+                self.velocity[1] = 10
 
         elif 'attack' in modes:
             self.flags['jumping'] = False
@@ -123,6 +124,7 @@ class Player:
         if self.canMoveLaterally(position[0]):
             self.playerSprite.x = position[0]
         else:
+            print("collision")
             self.position[0] = self.playerSprite.x
             self.velocity[0] = 0
 
@@ -150,7 +152,7 @@ class Player:
             ox = math.floor((new_x_position + self.playerSprite.width * 0.5)/config.width)
         else:
             ox = math.floor((new_x_position - self.playerSprite.width * 0.5)/config.width)
-        oy = math.floor(py/config.height)
+        oy = math.floor(py+ (self.playerSprite.height * 0.25)/config.height)
         oy2 = math.floor((py + (self.playerSprite.height * 0.75))/config.height)
 
         #check if there is an object in the next x position

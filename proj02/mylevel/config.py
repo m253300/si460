@@ -67,7 +67,7 @@ enemyDefinition = '''
 '''
 
 # Define where the player will start on the board
-playerStartRow = 50
+playerStartRow = 11
 playerStartCol = 10
 
 # Define the scaling for the player, and speed of the shifts between
