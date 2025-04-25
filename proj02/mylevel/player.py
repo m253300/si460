@@ -152,7 +152,7 @@ class Player:
             ox = math.floor((new_x_position + self.playerSprite.width * 0.5)/config.width)
         else:
             ox = math.floor((new_x_position - self.playerSprite.width * 0.5)/config.width)
-        oy = math.floor(py+ (self.playerSprite.height * 0.25)/config.height)
+        oy = math.floor(py/config.height)
         oy2 = math.floor((py + (self.playerSprite.height * 0.75))/config.height)
 
         #check if there is an object in the next x position
