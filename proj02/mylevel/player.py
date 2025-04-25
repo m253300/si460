@@ -37,15 +37,16 @@ class Player:
         # set up the foundations for the character movement
         self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
         self.pixels = numpy.array([config.pixels_per_meter, config.pixels_per_meter])
-        self.acceleration = numpy.array([0, 0])
+        self.acceleration = numpy.array([0, config.gravity])
         self.velocity = numpy.array([0, 0])
         # this will be set to the time in movement when a button is pressed
         # if 'left' is triggered at world time 11.6 seconds then this will be set to 11.6 and in the movement function it will calculate time as time = worldtime-self.time to determine how long the movement has been occuring
         # this will be needed for gravity and jumping most importantly
         self.time = 0
-        self.fallingSpeed = config.fallingSpeed
+        self.timeFalling = 0
         # this will keep track of the current action and will be needed for jumping and possibly other animations unless I am just stupid and need better conditionals because the self.mode already exists
-        self.flags = {'jumping' : False}
+        self.flags = {'jumping' : False,
+                      'falling' : False}
 
     # Build the initial character
     def changeSprite(self, mode=None, facing=None):
@@ -68,43 +69,48 @@ class Player:
 
     # Move the character
     def movement(self, t=0, keyTracking={}):
+
         modes = []
         if keyTracking != {}:
             for key in keyTracking:
                 if key in config.keyMappings:
                     modes.append(config.keyMappings[key])
+
         if 'right' in modes:
             if 'run' in modes and self.velocity[0] != 9:
-                #not numpy.array_equal(self.velocity, numpy.array([9, 0])):
                 self.time = t
-                self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
-                self.velocity[0] = 9 #numpy.array([9,0])
+                self.position[0] = self.playerSprite.x
+                self.velocity[0] = 9
             if self.mode != 'Run' or self.facing != 'Right':
-                self.velocity[0] = 3# = numpy.array([3,0])
+                self.velocity[0] = 3
                 self.time = t
-                self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
+                self.position[0] = self.playerSprite.x
                 self.changeSprite('Run', 'Right')
+
         elif 'left' in modes:
-            if 'run' in modes and self.velocity[0] != -9:# not numpy.array_equal(self.velocity, numpy.array([-9,0])):
-                self.velocity[0] = -9# = numpy.array([-9,0])
+            if 'run' in modes and self.velocity[0] != -9:
+                self.velocity[0] = -9
                 self.time = t
-                self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
+                self.position[0] = self.playerSprite.x
             if self.mode != 'Run' or self.facing != 'Left':
-                self.velocity[0] = -3# = numpy.array([-3,0])
+                self.velocity[0] = -3
                 self.time = t
-                self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
+                self.position[0] = self.playerSprite.x
                 self.changeSprite('Run', 'Left')
+
         elif 'jump' in modes:
             if self.mode != 'Jump':
                 self.flags['jumping'] = True
                 self.changeSprite('Jump', self.facing)
+
         elif 'attack' in modes:
             self.flags['jumping'] = False
+
         elif self.mode != 'Idle' and modes == [] and not self.flags['jumping']:
             # Set velocity to 0 since idle
             self.time = t
             self.velocity[0] = 0
-            self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
+            self.position[0] = self.playerSprite.x
             self.changeSprite('Idle', self.facing)
 
         self.updateLocation(t)
@@ -121,12 +127,18 @@ class Player:
             self.velocity[0] = 0
 
         # GRAVITY/DOWNWARD MOVEMENT
-        self.applyFalling()
-        # if self.canMoveDownward(newY):
-        #     self.playerSprite.y = newY
-        #     self.fallingSpeed *= 1.05
-        # else:
-        #     self.fallingSpeed = 1.0
+        if not self.onSolidGround() and not self.flags['falling']:
+            self.timeFalling = t
+            self.position[1] = self.playerSprite.y
+            self.flags['falling'] = True
+        elif not self.onSolidGround() and self.flags['falling']:
+            time = t - self.timeFalling
+            position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
+            self.playerSprite.y = position[1]
+        else:
+            self.timeFalling = 0
+            self.flags['falling'] = False
+            self.playerSprite.y = math.floor((self.playerSprite.y+self.playerSprite.height*0.25)/config.height)*config.height
 
     # Returns True if player can move laterally/nothing is in the player's way. Returns False if unable to move/something is in the way
     def canMoveLaterally(self, new_x_position):
@@ -145,25 +157,18 @@ class Player:
         if (oy in config.level and ox in config.level[oy]) or (oy2 in config.level and ox in config.level[oy2]):
             return False
         return True
-
-    # Returns True if player can move downward/nothing is below either of the player's feet. Returns False if unable to fall downward/the player has their foot one something
-    def applyFalling(self):
-        if self.fallingSpeed > 45:
-            self.fallingSpeed = 45
-        newY = self.playerSprite.y - self.fallingSpeed
-
+        
+    # detects if the player is on solid ground and thus cannot fall. If the player is on solid ground and cannot fall, then returns true, otherwise returns false
+    def onSolidGround(self):
         # ox is adjusted to account for the sprite anchor being in the center of the player sprite
         oxLeft = math.floor((self.playerSprite.x - self.playerSprite.width * 0.3)/config.width)
         oxRight = math.floor((self.playerSprite.x + self.playerSprite.width * 0.3)/config.width)
-        oy = math.floor(newY/config.height)
-        
-        # if this conditional is true, then the hero can fall
+        oy = math.floor((self.playerSprite.y-1)/config.height)
+
         if (oy in config.level and oxLeft not in config.level[oy] and oxRight not in config.level[oy]) or (oy not in config.level):
-            self.playerSprite.y = newY
-            self.fallingSpeed *= 1.05
+            return False
         else:
-            self.playerSprite.y = (oy+1)*config.height
-            self.fallingSpeed = 1.0
+            return True
 
     # Draw our character
     def draw(self, t=0, keyTracking={}, *other):

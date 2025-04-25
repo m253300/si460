@@ -23,9 +23,9 @@ levelDefinition = '''
 08
 07                   hl hm hm hm hm hm hm hm hr
 06
-05          hl hr    um
-04             um    um
-03 um ur       um    um
+05          hl hr    
+04                 
+03 um ur           
 02 mm mr                            cr
 01 mm cr wl um um um um um um um um ur
 00 mm mm mm mm mm mm mm mm mm mm mm mr
@@ -67,8 +67,8 @@ enemyDefinition = '''
 '''
 
 # Define where the player will start on the board
-playerStartRow = 11
-playerStartCol = 13
+playerStartRow = 50
+playerStartCol = 10
 
 # Define the scaling for the player, and speed of the shifts between
 # the various sprites that make up the players.
@@ -121,5 +121,5 @@ enemies = positionEnemies(enemyDefinition)
 level, rows, cols = board2grid(levelDefinition, tilepath, returnSize=True)
 goals = board2grid(goalDefinition, goalpath)
 
-fallingSpeed = 0.5
 pixels_per_meter = 40
+gravity = -5
