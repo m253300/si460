@@ -37,13 +37,13 @@ class Player:
         # set up the foundations for the character movement
         self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
         self.pixels = numpy.array([config.pixels_per_meter, config.pixels_per_meter])
-        self.acceleration = numpy.array([0, config.gravity])
+        self.acceleration = numpy.array([0, 0])
         self.velocity = numpy.array([0, 0])
         # this will be set to the time in movement when a button is pressed
         # if 'left' is triggered at world time 11.6 seconds then this will be set to 11.6 and in the movement function it will calculate time as time = worldtime-self.time to determine how long the movement has been occuring
         # this will be needed for gravity and jumping most importantly
         self.time = 0
-        self.timeFalling = 0
+        self.fallingSpeed = config.fallingSpeed
         # this will keep track of the current action and will be needed for jumping and possibly other animations unless I am just stupid and need better conditionals because the self.mode already exists
         self.flags = {'jumping' : False}
 
@@ -120,18 +120,13 @@ class Player:
             self.position[0] = self.playerSprite.x
             self.velocity[0] = 0
 
-
-        # DOWNWARD MOVEMENT
-        #now check if player needs has ground below him so check if position[1] is a valid position
-        time = t - self.timeFalling
-        position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
-        if self.canMoveDownward(position[1]):
-            self.timeFalling = t
-            print(time)
-            self.playerSprite.y = position[1]
-        else:
-            self.position[1] = self.playerSprite.y
-            self.velocity[1] = 0
+        # GRAVITY/DOWNWARD MOVEMENT
+        self.applyFalling()
+        # if self.canMoveDownward(newY):
+        #     self.playerSprite.y = newY
+        #     self.fallingSpeed *= 1.05
+        # else:
+        #     self.fallingSpeed = 1.0
 
     # Returns True if player can move laterally/nothing is in the player's way. Returns False if unable to move/something is in the way
     def canMoveLaterally(self, new_x_position):
@@ -152,21 +147,23 @@ class Player:
         return True
 
     # Returns True if player can move downward/nothing is below either of the player's feet. Returns False if unable to fall downward/the player has their foot one something
-    def canMoveDownward(self, new_y_position):
-        # ox is adjusted to account for the sprite anchor being in the center of the player sprite
-        ox = None
-        if self.facing == 'Right':
-            ox = math.floor((self.playerSprite.x - self.playerSprite.width * 0.5)/config.width)
-        else:
-            ox = math.floor((self.playerSprite.x + self.playerSprite.width * 0.5)/config.width)
-        oy = math.floor(self.playerSprite.y/config.height)
+    def applyFalling(self):
+        if self.fallingSpeed > 45:
+            self.fallingSpeed = 45
+        newY = self.playerSprite.y - self.fallingSpeed
 
-        print(f"oy = {oy}, playery = {self.playerSprite.y/config.height}")
+        # ox is adjusted to account for the sprite anchor being in the center of the player sprite
+        oxLeft = math.floor((self.playerSprite.x - self.playerSprite.width * 0.3)/config.width)
+        oxRight = math.floor((self.playerSprite.x + self.playerSprite.width * 0.3)/config.width)
+        oy = math.floor(newY/config.height)
         
-        if (oy in config.level and ox not in config.level[oy]) or (oy not in config.level):
-            return True
+        # if this conditional is true, then the hero can fall
+        if (oy in config.level and oxLeft not in config.level[oy] and oxRight not in config.level[oy]) or (oy not in config.level):
+            self.playerSprite.y = newY
+            self.fallingSpeed *= 1.05
         else:
-            return False
+            self.playerSprite.y = (oy+1)*config.height
+            self.fallingSpeed = 1.0
 
     # Draw our character
     def draw(self, t=0, keyTracking={}, *other):

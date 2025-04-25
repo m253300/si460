@@ -23,9 +23,9 @@ levelDefinition = '''
 08
 07                   hl hm hm hm hm hm hm hm hr
 06
-05          hl hr
-04 
-03 um ur
+05          hl hr    um
+04             um    um
+03 um ur       um    um
 02 mm mr                            cr
 01 mm cr wl um um um um um um um um ur
 00 mm mm mm mm mm mm mm mm mm mm mm mr
@@ -121,5 +121,5 @@ enemies = positionEnemies(enemyDefinition)
 level, rows, cols = board2grid(levelDefinition, tilepath, returnSize=True)
 goals = board2grid(goalDefinition, goalpath)
 
-gravity = -9.8
+fallingSpeed = 0.5
 pixels_per_meter = 40
