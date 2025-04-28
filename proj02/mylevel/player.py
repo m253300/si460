@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # Important Libraries
-import config, numpy, math
+import config, numpy, math, pyglet
 
 # Our Hero Class
 class Player:
@@ -47,7 +47,9 @@ class Player:
         # this will keep track of the current action and will be needed for jumping and possibly other animations unless I am just stupid and need better conditionals because the self.mode already exists
         self.flags = {'jumping' : False,
                       'falling' : False,
-                      'laterCollision' : False}
+                      'oldV'    : False}
+        self.health = 3
+        self.oldV = 0
 
     # Build the initial character
     def changeSprite(self, mode=None, facing=None):
@@ -77,58 +79,78 @@ class Player:
                 if key in config.keyMappings:
                     modes.append(config.keyMappings[key])
 
-        if 'right' in modes:
-            if 'run' in modes and self.velocity[0] != 9:
-                self.time = t
-                self.position[0] = self.playerSprite.x
-                self.velocity[0] = 9
-            if 'run' not in modes and self.velocity[0] == 9:
-                self.velocity[0] = 3
-                self.time = t
-                self.position[0] = self.playerSprite.x
-            if self.mode != 'Run' or self.facing != 'Right':
-                self.velocity[0] = 3
-                self.time = t
-                self.position[0] = self.playerSprite.x
-                self.changeSprite('Run', 'Right')
+        if not self.flags['jumping']:
+            if 'right' in modes:
+                if 'run' in modes and self.velocity[0] != 9:
+                    self.time = t
+                    self.position[0] = self.playerSprite.x
+                    self.velocity[0] = 9
+                if 'run' not in modes and self.velocity[0] == 9:
+                    self.velocity[0] = 3
+                    self.time = t
+                    self.position[0] = self.playerSprite.x
+                if self.mode != 'Run' or self.facing != 'Right':
+                    self.velocity[0] = 3
+                    self.time = t
+                    self.position[0] = self.playerSprite.x
+                    self.changeSprite('Run', 'Right')
 
-        elif 'left' in modes:
-            if 'run' in modes and self.velocity[0] != -9:
-                self.velocity[0] = -9
-                self.time = t
-                self.position[0] = self.playerSprite.x
-            if 'run' not in modes and self.velocity[0] == -9:
-                self.velocity[0] = -3
-                self.time = t
-                self.position[0] = self.playerSprite.x
-            if self.mode != 'Run' or self.facing != 'Left':
-                self.velocity[0] = -3
-                self.time = t
-                self.position[0] = self.playerSprite.x
-                self.changeSprite('Run', 'Left')
+            elif 'left' in modes:
+                if 'run' in modes and self.velocity[0] != -9:
+                    self.velocity[0] = -9
+                    self.time = t
+                    self.position[0] = self.playerSprite.x
+                if 'run' not in modes and self.velocity[0] == -9:
+                    self.velocity[0] = -3
+                    self.time = t
+                    self.position[0] = self.playerSprite.x
+                if self.mode != 'Run' or self.facing != 'Left':
+                    self.velocity[0] = -3
+                    self.time = t
+                    self.position[0] = self.playerSprite.x
+                    self.changeSprite('Run', 'Left')
 
-        elif self.mode != 'Idle' and modes == [] and not self.flags['jumping']:
-            # Set velocity to 0 since idle
-            self.time = t
-            self.velocity[0] = 0
-            self.position[0] = self.playerSprite.x
-            self.changeSprite('Idle', self.facing)
+            elif self.mode != 'Idle' and modes == []:
+                # Set velocity to 0 since idle
+                self.time = t
+                self.velocity[0] = 0
+                self.position[0] = self.playerSprite.x
+                self.changeSprite('Idle', self.facing)
 
-        if 'jump' in modes:
+        if 'jump' in modes and not self.flags['jumping'] and self.onSolidGround(self.playerSprite.y-1):
             self.flags['jumping'] = True
-            self.changeSprite('Jump', self.facing)
             self.animationLoop = False
-            self.velocity[1] = 10
+            self.changeSprite('Jump', self.facing)
+            self.velocity[1] = 9
 
         self.updateLocation(t)
 
+        hp = ''
+        for x in range(self.health):
+            hp += "♥"
+        label = pyglet.text.Label(hp,
+                font_name='Times New Roman',
+                font_size=20,
+                x=self.playerSprite.x, y=self.playerSprite.y + self.playerSprite.height,
+                color = (255, 0, 0, 255),
+                anchor_x='center', anchor_y='bottom')
+        label.draw()
+
     def updateLocation(self, t):
         # LATERAL MOVEMENT
-        #now check if this position[0] is a valid position using the canMoveLaterally function
         if self.canMoveLaterally():
             time = t - self.time
             position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
-            self.playerSprite.x = position[0]
+
+            # prevents player from going off leftmost edge of screen
+            if position[0] - self.playerSprite.width * 0.5 < 0:
+                position[0] = 0
+            else:
+                self.playerSprite.x = position[0]
+        else:
+            if not self.isObstructedAbove():
+                self.velocity[0] = 0
+            self.position[0] = self.playerSprite.x
 
         # GRAVITY/DOWNWARD MOVEMENT
         time = t - self.timeFalling
@@ -150,9 +172,12 @@ class Player:
             self.flags['jumping'] = False
             self.animationLoop = True
 
+        if self.playerSprite.y + self.playerSprite.height < 0:
+            self.health = 0
+
     def isObstructedAbove(self):
         py = self.playerSprite.y
-        oy = math.floor((py + (self.playerSprite.height * 1))/config.height)
+        oy = math.floor((py + (self.playerSprite.height * 0.75))/config.height)
         ox = math.floor(self.playerSprite.x/config.width)
 
         if oy in config.level and ox in config.level[oy]:
