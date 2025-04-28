@@ -148,7 +148,10 @@ class Player:
             self.position[1] = self.playerSprite.y
             self.flags['falling'] = True
         elif not self.onSolidGround(position[1]) and self.flags['falling']:
-            self.playerSprite.y = position[1]
+            if self.isObstructedAbove() and self.flags['jumping']:
+                self.velocity[1] = 0
+            else:
+                self.playerSprite.y = position[1]
         else:
             self.timeFalling = 0
             self.flags['falling'] = False
@@ -156,6 +159,17 @@ class Player:
             self.velocity[1] = 0
             self.flags['jumping'] = False
             self.animationLoop = True
+
+    def isObstructedAbove(self):
+        py = self.playerSprite.y
+        oy = math.floor((py + (self.playerSprite.height * 1))/config.height)
+        ox = math.floor(self.playerSprite.x/config.width)
+
+        if oy in config.level and ox in config.level[oy]:
+            return True
+        else:
+            return False
+            
 
     # Returns True if player can move laterally/nothing is in the player's way. Returns False if unable to move/something is in the way
     def canMoveLaterally(self):
