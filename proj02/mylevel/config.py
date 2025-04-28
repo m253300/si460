@@ -122,4 +122,4 @@ level, rows, cols = board2grid(levelDefinition, tilepath, returnSize=True)
 goals = board2grid(goalDefinition, goalpath)
 
 pixels_per_meter = 40
-gravity = -5
+gravity = -9

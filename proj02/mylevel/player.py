@@ -46,7 +46,8 @@ class Player:
         self.timeFalling = 0
         # this will keep track of the current action and will be needed for jumping and possibly other animations unless I am just stupid and need better conditionals because the self.mode already exists
         self.flags = {'jumping' : False,
-                      'falling' : False}
+                      'falling' : False,
+                      'laterCollision' : False}
 
     # Build the initial character
     def changeSprite(self, mode=None, facing=None):
@@ -78,10 +79,17 @@ class Player:
 
         if 'right' in modes:
             if 'run' in modes and self.velocity[0] != 9:
+                print(f'1 {t} run')
                 self.time = t
                 self.position[0] = self.playerSprite.x
                 self.velocity[0] = 9
+            if 'run' not in modes and self.velocity[0] == 9:
+                print(f'2 {t} walk')
+                self.velocity[0] = 3
+                self.time = t
+                self.position[0] = self.playerSprite.x
             if self.mode != 'Run' or self.facing != 'Right':
+                print(f'3 {t} walk')
                 self.velocity[0] = 3
                 self.time = t
                 self.position[0] = self.playerSprite.x
@@ -92,20 +100,15 @@ class Player:
                 self.velocity[0] = -9
                 self.time = t
                 self.position[0] = self.playerSprite.x
+            if 'run' not in modes and self.velocity[0] == -9:
+                self.velocity[0] = -3
+                self.time = t
+                self.position[0] = self.playerSprite.x
             if self.mode != 'Run' or self.facing != 'Left':
                 self.velocity[0] = -3
                 self.time = t
                 self.position[0] = self.playerSprite.x
                 self.changeSprite('Run', 'Left')
-
-        elif 'jump' in modes:
-            if self.mode != 'Jump':
-                self.flags['jumping'] = True
-                self.changeSprite('Jump', self.facing)
-                self.velocity[1] = 10
-
-        elif 'attack' in modes:
-            self.flags['jumping'] = False
 
         elif self.mode != 'Idle' and modes == [] and not self.flags['jumping']:
             # Set velocity to 0 since idle
@@ -114,44 +117,56 @@ class Player:
             self.position[0] = self.playerSprite.x
             self.changeSprite('Idle', self.facing)
 
+        if 'jump' in modes:
+            #this if statement makes it so you cannot hold down the jump button in place
+            # if self.mode != 'Jump':
+            # print(self.velocity)
+            print(f'{t} jumping')
+            self.flags['jumping'] = True
+            self.changeSprite('Jump', self.facing)
+            self.animationLoop = False
+            self.velocity[1] = 10
+
+        if 'attack' in modes:
+            self.flags['jumping'] = False
+
         self.updateLocation(t)
 
     def updateLocation(self, t):
         # LATERAL MOVEMENT
-        time = t - self.time
-        position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
         #now check if this position[0] is a valid position using the canMoveLaterally function
-        if self.canMoveLaterally(position[0]):
+        if self.canMoveLaterally():
+            time = t - self.time
+            position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
             self.playerSprite.x = position[0]
-        else:
-            print("collision")
-            self.position[0] = self.playerSprite.x
-            self.velocity[0] = 0
 
         # GRAVITY/DOWNWARD MOVEMENT
-        if not self.onSolidGround() and not self.flags['falling']:
+        time = t - self.timeFalling
+        position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
+        if not self.onSolidGround(position[1]) and not self.flags['falling']:
             self.timeFalling = t
             self.position[1] = self.playerSprite.y
             self.flags['falling'] = True
-        elif not self.onSolidGround() and self.flags['falling']:
-            time = t - self.timeFalling
-            position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
+        elif not self.onSolidGround(position[1]) and self.flags['falling']:
             self.playerSprite.y = position[1]
         else:
             self.timeFalling = 0
             self.flags['falling'] = False
             self.playerSprite.y = math.floor((self.playerSprite.y+self.playerSprite.height*0.25)/config.height)*config.height
+            self.velocity[1] = 0
+            self.flags['jumping'] = False
+            self.animationLoop = True
 
     # Returns True if player can move laterally/nothing is in the player's way. Returns False if unable to move/something is in the way
-    def canMoveLaterally(self, new_x_position):
+    def canMoveLaterally(self):
         py = self.playerSprite.y
 
         # ox is adjusted to account for the sprite anchor being in the center of the player sprite
         ox = None
         if self.facing == 'Right':
-            ox = math.floor((new_x_position + self.playerSprite.width * 0.5)/config.width)
+            ox = math.floor((self.playerSprite.x + self.playerSprite.width * 0.5)/config.width)
         else:
-            ox = math.floor((new_x_position - self.playerSprite.width * 0.5)/config.width)
+            ox = math.floor((self.playerSprite.x - self.playerSprite.width * 0.5)/config.width)
         oy = math.floor(py/config.height)
         oy2 = math.floor((py + (self.playerSprite.height * 0.75))/config.height)
 
@@ -161,13 +176,16 @@ class Player:
         return True
         
     # detects if the player is on solid ground and thus cannot fall. If the player is on solid ground and cannot fall, then returns true, otherwise returns false
-    def onSolidGround(self):
+    def onSolidGround(self, newY):
         # ox is adjusted to account for the sprite anchor being in the center of the player sprite
         oxLeft = math.floor((self.playerSprite.x - self.playerSprite.width * 0.3)/config.width)
         oxRight = math.floor((self.playerSprite.x + self.playerSprite.width * 0.3)/config.width)
-        oy = math.floor((self.playerSprite.y-1)/config.height)
+        oy = math.floor((self.playerSprite.y)/config.height)
+        oyNew = math.floor((newY)/config.height)
 
-        if (oy in config.level and oxLeft not in config.level[oy] and oxRight not in config.level[oy]) or (oy not in config.level):
+        if not self.flags['falling'] and ((oy not in config.level) or (oy in config.level and oxLeft not in config.level[oy] and oxRight not in config.level[oy])):
+            return False
+        elif self.flags['falling'] and ((oyNew not in config.level) or (oyNew in config.level and oxLeft not in config.level[oyNew] and oxRight not in config.level[oyNew])):
             return False
         else:
             return True
