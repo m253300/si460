@@ -79,17 +79,14 @@ class Player:
 
         if 'right' in modes:
             if 'run' in modes and self.velocity[0] != 9:
-                print(f'1 {t} run')
                 self.time = t
                 self.position[0] = self.playerSprite.x
                 self.velocity[0] = 9
             if 'run' not in modes and self.velocity[0] == 9:
-                print(f'2 {t} walk')
                 self.velocity[0] = 3
                 self.time = t
                 self.position[0] = self.playerSprite.x
             if self.mode != 'Run' or self.facing != 'Right':
-                print(f'3 {t} walk')
                 self.velocity[0] = 3
                 self.time = t
                 self.position[0] = self.playerSprite.x
@@ -118,17 +115,10 @@ class Player:
             self.changeSprite('Idle', self.facing)
 
         if 'jump' in modes:
-            #this if statement makes it so you cannot hold down the jump button in place
-            # if self.mode != 'Jump':
-            # print(self.velocity)
-            print(f'{t} jumping')
             self.flags['jumping'] = True
             self.changeSprite('Jump', self.facing)
             self.animationLoop = False
             self.velocity[1] = 10
-
-        if 'attack' in modes:
-            self.flags['jumping'] = False
 
         self.updateLocation(t)
 
