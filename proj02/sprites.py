@@ -84,14 +84,14 @@ if __name__ == '__main__':
     imagesTest = loadAllImages()
 
     # Example: Create a sprite using the loaded data
-    player = buildSprite(imagesTest, character="hero", mode="Dead", facing="Right", animationSpeed=0.05, animationLoop=False, animationX=100, animationY=100)
+    sprite = buildSprite(imagesTest, character="enemy-1", mode="Run", facing="Right", animationSpeed=0.05, animationScale=0.15, animationLoop=True, animationX=100, animationY=100)
 
-    if player:
+    if sprite:
         window = pyglet.window.Window(800, 600)
 
         @window.event
         def on_draw():
             window.clear()
-            player.draw()
+            sprite.draw()
 
         pyglet.app.run()

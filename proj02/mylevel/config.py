@@ -123,3 +123,4 @@ goals = board2grid(goalDefinition, goalpath)
 
 pixels_per_meter = 40
 gravity = -9
+kunai = []

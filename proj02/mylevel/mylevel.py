@@ -5,6 +5,8 @@ import pyglet
 
 # Our own Game Libraries
 import sprites, config
+from enemy1 import Enemy1
+from enemy2 import Enemy2
 
 # SI460 Level Definition
 class Level:
@@ -58,6 +60,12 @@ class Level:
         # Draw the hero.
         self.hero.draw(t, keyTracking)
 
+        for x in config.kunai:
+            if x.playerSprite.x > width:
+                config.kunai.remove(x)
+            else:
+                x.draw(t)
+
         if self.hero.flags['dead']:
             label = pyglet.text.Label('You Died',
                     font_name='Times New Roman',
@@ -81,11 +89,31 @@ hero = Player(gameSprites,
               config.playerSpriteScale,
               True,
               config.playerStartCol * config.width - 0.5 * config.width,
-              config.playerStartRow * config.height)
+              config.playerStartRow * config.height * 1.02)
 
 # Load in the Enemies
 print('Loading the Enemies...')
+# must go through config.enemies in a for loop and put the correct enemy in the correct location
 enemies = []
+for e in config.enemies:
+    if e[2] == 'e1':
+        enemies.append(Enemy1(gameSprites,
+                          sprites.buildSprite,
+                          'enemy-1', 'Idle', 'Left',
+                          config.playerSpriteSpeed,
+                          config.playerSpriteScale,
+                          True,
+                          e[0] * config.width - 0.5 * config.width,
+                          e[1] * config.height))
+    elif e[2] == 'e2':
+        enemies.append(Enemy2(gameSprites,
+                          sprites.buildSprite,
+                          'enemy-2', 'Idle', 'Left',
+                          config.playerSpriteSpeed,
+                          config.playerSpriteScale,
+                          True,
+                          e[0] * config.width - 0.5 * config.width,
+                          e[1] * config.height))
 
 # provide the level to the game engine
 print('Starting level:', config.levelName)

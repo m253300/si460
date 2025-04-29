@@ -2,15 +2,15 @@
 
 # Important Libraries
 import config, numpy, math, pyglet
-from kunai import Kunai
 
 # Our Hero Class
-class Player:
+# red koopa that turns left and right once it reaches a ledge or wall
+class Enemy1:
     def __init__(self, sprites={},
                        buildSprite=None,
-                       playerClass="hero",
-                       mode="Run",
-                       facing="Right",
+                       playerClass="enemy-1",
+                       mode="Idle",
+                       facing="Left",
                        speed=0.05,
                        scale=0.15,
                        loop=True,
@@ -85,76 +85,9 @@ class Player:
         elif self.health > 0:
             if t - self.timeAttackStarted > 0.65:
                 self.flags['attacking'] = False
-                self.flags['throwing'] = False
+            
+            # since not dead, use conditionals to update location
 
-            modes = []
-            if keyTracking != {}:
-                for key in keyTracking:
-                    if key in config.keyMappings:
-                        modes.append(config.keyMappings[key])
-
-            if not self.flags['jumping'] and not self.flags['attacking'] and not self.flags['throwing']:
-                if 'right' in modes:
-                    if 'run' in modes and self.velocity[0] != 9:
-                        self.time = t
-                        self.position[0] = self.playerSprite.x
-                        self.velocity[0] = 9
-                    if 'run' not in modes and self.velocity[0] == 9:
-                        self.velocity[0] = 3
-                        self.time = t
-                        self.position[0] = self.playerSprite.x
-                    if self.mode != 'Run' or self.facing != 'Right':
-                        self.velocity[0] = 3
-                        self.time = t
-                        self.position[0] = self.playerSprite.x
-                        self.changeSprite('Run', 'Right')
-
-                elif 'left' in modes:
-                    if 'run' in modes and self.velocity[0] != -9:
-                        self.velocity[0] = -9
-                        self.time = t
-                        self.position[0] = self.playerSprite.x
-                    if 'run' not in modes and self.velocity[0] == -9:
-                        self.velocity[0] = -3
-                        self.time = t
-                        self.position[0] = self.playerSprite.x
-                    if self.mode != 'Run' or self.facing != 'Left':
-                        self.velocity[0] = -3
-                        self.time = t
-                        self.position[0] = self.playerSprite.x
-                        self.changeSprite('Run', 'Left')
-
-                elif self.mode != 'Idle' and modes == []:
-                    # Set velocity to 0 since idle
-                    self.time = t
-                    self.velocity[0] = 0
-                    self.position[0] = self.playerSprite.x
-                    self.changeSprite('Idle', self.facing)
-
-            if 'jump' in modes and not self.flags['jumping'] and self.onSolidGround(self.playerSprite.y-1):
-                self.flags['jumping'] = True
-                self.animationLoop = False
-                self.changeSprite('Jump', self.facing)
-                self.velocity[1] = 9
-
-            if 'attack' in modes and not self.flags['attacking'] and not self.flags['jumping']:
-                self.flags['attacking'] = True
-                self.animationLoop = False
-                self.velocity[0] = 0
-                self.position[0] = self.playerSprite.x
-                self.changeSprite('Attack', self.facing)
-                self.timeAttackStarted = t
-
-            if 'shoot' in modes and not self.flags['attacking'] and not self.flags['jumping'] and not self.flags['throwing']:
-                self.flags['throwing'] = True
-                self.animationLoop = False
-                self.velocity[0] = 0
-                self.position[0] = self.playerSprite.x
-                self.changeSprite('Throw', self.facing)
-                self.timeAttackStarted = t
-                config.kunai.append(Kunai(sprites=self.sprites, buildSprite=self.buildSprite, facing=self.facing, x=self.playerSprite.x, y=self.playerSprite.y + 0.5*self.playerSprite.height, time=t))
-
-            self.updateLocation(t)
 
         hp = ''
         for x in range(self.health):
