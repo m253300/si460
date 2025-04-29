@@ -58,6 +58,15 @@ class Level:
         # Draw the hero.
         self.hero.draw(t, keyTracking)
 
+        if self.hero.flags['dead']:
+            label = pyglet.text.Label('You Died',
+                    font_name='Times New Roman',
+                    font_size=60,
+                    x=width/2, y=height/2,
+                    color = (255, 0, 0, 255),
+                    anchor_x='center', anchor_y='center')
+            label.draw()
+
 # Load all game sprites
 print('Loading Sprites...')
 gameSprites = sprites.loadAllImages(config.spritespath)

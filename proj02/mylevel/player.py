@@ -45,11 +45,14 @@ class Player:
         self.time = 0
         self.timeFalling = 0
         # this will keep track of the current action and will be needed for jumping and possibly other animations unless I am just stupid and need better conditionals because the self.mode already exists
-        self.flags = {'jumping' : False,
-                      'falling' : False,
-                      'oldV'    : False}
+        self.flags = {'jumping'   : False,
+                      'falling'   : False,
+                      'dead'      : False,
+                      'attacking' : False,
+                      'throwing'  : False}
         self.health = 3
-        self.oldV = 0
+        self.timeDamageWasTaken = 0
+        self.timeAttackStarted = 0
 
     # Build the initial character
     def changeSprite(self, mode=None, facing=None):
@@ -73,57 +76,83 @@ class Player:
     # Move the character
     def movement(self, t=0, keyTracking={}):
 
-        modes = []
-        if keyTracking != {}:
-            for key in keyTracking:
-                if key in config.keyMappings:
-                    modes.append(config.keyMappings[key])
+        if self.health <= 0 and not self.flags['dead']:
+            self.flags['dead'] = True
+            self.animationLoop = False
+            self.changeSprite('Dead', self.facing)
 
-        if not self.flags['jumping']:
-            if 'right' in modes:
-                if 'run' in modes and self.velocity[0] != 9:
-                    self.time = t
-                    self.position[0] = self.playerSprite.x
-                    self.velocity[0] = 9
-                if 'run' not in modes and self.velocity[0] == 9:
-                    self.velocity[0] = 3
-                    self.time = t
-                    self.position[0] = self.playerSprite.x
-                if self.mode != 'Run' or self.facing != 'Right':
-                    self.velocity[0] = 3
-                    self.time = t
-                    self.position[0] = self.playerSprite.x
-                    self.changeSprite('Run', 'Right')
+        elif self.health > 0:
+            if t - self.timeAttackStarted > 0.65:
+                self.flags['attacking'] = False
+                self.flags['throwing'] = False
 
-            elif 'left' in modes:
-                if 'run' in modes and self.velocity[0] != -9:
-                    self.velocity[0] = -9
-                    self.time = t
-                    self.position[0] = self.playerSprite.x
-                if 'run' not in modes and self.velocity[0] == -9:
-                    self.velocity[0] = -3
-                    self.time = t
-                    self.position[0] = self.playerSprite.x
-                if self.mode != 'Run' or self.facing != 'Left':
-                    self.velocity[0] = -3
-                    self.time = t
-                    self.position[0] = self.playerSprite.x
-                    self.changeSprite('Run', 'Left')
+            modes = []
+            if keyTracking != {}:
+                for key in keyTracking:
+                    if key in config.keyMappings:
+                        modes.append(config.keyMappings[key])
 
-            elif self.mode != 'Idle' and modes == []:
-                # Set velocity to 0 since idle
-                self.time = t
+            if not self.flags['jumping'] and not self.flags['attacking'] and not self.flags['throwing']:
+                if 'right' in modes:
+                    if 'run' in modes and self.velocity[0] != 9:
+                        self.time = t
+                        self.position[0] = self.playerSprite.x
+                        self.velocity[0] = 9
+                    if 'run' not in modes and self.velocity[0] == 9:
+                        self.velocity[0] = 3
+                        self.time = t
+                        self.position[0] = self.playerSprite.x
+                    if self.mode != 'Run' or self.facing != 'Right':
+                        self.velocity[0] = 3
+                        self.time = t
+                        self.position[0] = self.playerSprite.x
+                        self.changeSprite('Run', 'Right')
+
+                elif 'left' in modes:
+                    if 'run' in modes and self.velocity[0] != -9:
+                        self.velocity[0] = -9
+                        self.time = t
+                        self.position[0] = self.playerSprite.x
+                    if 'run' not in modes and self.velocity[0] == -9:
+                        self.velocity[0] = -3
+                        self.time = t
+                        self.position[0] = self.playerSprite.x
+                    if self.mode != 'Run' or self.facing != 'Left':
+                        self.velocity[0] = -3
+                        self.time = t
+                        self.position[0] = self.playerSprite.x
+                        self.changeSprite('Run', 'Left')
+
+                elif self.mode != 'Idle' and modes == []:
+                    # Set velocity to 0 since idle
+                    self.time = t
+                    self.velocity[0] = 0
+                    self.position[0] = self.playerSprite.x
+                    self.changeSprite('Idle', self.facing)
+
+            if 'jump' in modes and not self.flags['jumping'] and self.onSolidGround(self.playerSprite.y-1):
+                self.flags['jumping'] = True
+                self.animationLoop = False
+                self.changeSprite('Jump', self.facing)
+                self.velocity[1] = 9
+
+            if 'attack' in modes and not self.flags['attacking'] and not self.flags['jumping']:
+                self.flags['attacking'] = True
+                self.animationLoop = False
                 self.velocity[0] = 0
                 self.position[0] = self.playerSprite.x
-                self.changeSprite('Idle', self.facing)
+                self.changeSprite('Attack', self.facing)
+                self.timeAttackStarted = t
 
-        if 'jump' in modes and not self.flags['jumping'] and self.onSolidGround(self.playerSprite.y-1):
-            self.flags['jumping'] = True
-            self.animationLoop = False
-            self.changeSprite('Jump', self.facing)
-            self.velocity[1] = 9
+            if 'shoot' in modes and not self.flags['attacking'] and not self.flags['jumping'] and not self.flags['throwing']:
+                self.flags['throwing'] = True
+                self.animationLoop = False
+                self.velocity[0] = 0
+                self.position[0] = self.playerSprite.x
+                self.changeSprite('Throw', self.facing)
+                self.timeAttackStarted = t
 
-        self.updateLocation(t)
+            self.updateLocation(t)
 
         hp = ''
         for x in range(self.health):
@@ -135,6 +164,12 @@ class Player:
                 color = (255, 0, 0, 255),
                 anchor_x='center', anchor_y='bottom')
         label.draw()
+
+    def ableToBeAttacked(self, t):
+        if t - self.timeDamageWasTaken > 1:
+            return True
+        else:
+            return False
 
     def updateLocation(self, t):
         # LATERAL MOVEMENT
