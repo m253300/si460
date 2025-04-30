@@ -80,13 +80,12 @@ class Enemy1:
         if self.health <= 0 and not self.flags['dead']:
             self.flags['dead'] = True
             self.animationLoop = False
+            self.playerSprite.y = self.playerSprite.y - 0.1*self.playerSprite.height
             self.changeSprite('Dead', self.facing)
 
         elif self.health > 0:
-            if t - self.timeAttackStarted > 0.65:
-                self.flags['attacking'] = False
-            
             # since not dead, use conditionals to update location
+            f = 1+1
 
 
         hp = ''
@@ -100,11 +99,28 @@ class Enemy1:
                 anchor_x='center', anchor_y='bottom')
         label.draw()
 
+    def attack(self, t):
+        if t - self.timeAttackStarted > 1:
+                self.flags['attacking'] = False
+
+        if not self.flags['attacking']:
+            self.flags['attacking'] = True
+            self.animationLoop = False
+            self.velocity[0] = 0
+            self.position[0] = self.playerSprite.x
+            self.changeSprite('Attack', self.facing)
+            self.timeAttackStarted = t
+
     def ableToBeAttacked(self, t):
-        if t - self.timeDamageWasTaken > 1:
+        if t - self.timeDamageWasTaken > 0.75:
             return True
         else:
             return False
+        
+    def takeDamage(self, damage, time):
+        if self.ableToBeAttacked(time):
+            self.health -= damage
+            self.timeDamageWasTaken = time
 
     def updateLocation(self, t):
         # LATERAL MOVEMENT
@@ -187,6 +203,14 @@ class Enemy1:
             return False
         else:
             return True
+        
+    def getHitbox(self):
+        x = self.playerSprite.x
+        y = self.playerSprite.y
+        w = self.playerSprite.width
+        h = self.playerSprite.height
+
+        return (x-0.4*w, y+0.25*h), (x+0.4*w, y+0.75*h)
 
     # Draw our character
     def draw(self, t=0, keyTracking={}, *other):

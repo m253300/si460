@@ -1,0 +1,83 @@
+DISCLAIMER: I used Gemini and ChatGPT to try and work on this project A LOT but they never produced code which actually worked. I tried dozens of time to give them the actual files and help me with the movement but they were never able to fix anything and actually usually made it worse. The following is usuable code which I did implement into my project.
+
+-------------------------------------------------------
+
+Collision Detection:
+
+My input:
+I am still working on that game and am implementing hit detection. I have rectangular boxes around all sprites represented by ((lower left x, lower left y), (upper right x, upper right y)). Needless to say, given two of these boxes, does python have any methods or functions to determine if a rectangle is intersecting another?
+
+ChatGPT output:
+Thought for 7 seconds
+Python itself doesn’t include a built-in rectangle-intersection API, but it’s trivial to write one yourself, and there are several third-party helpers you can use if you prefer.
+
+1. DIY Axis-Aligned Bounding-Box (AABB) test
+For two rectangles
+
+python
+Copy
+Edit
+A = ((ax1, ay1), (ax2, ay2))   # lower-left, upper-right  
+B = ((bx1, by1), (bx2, by2))
+you can test overlap with:
+
+python
+Copy
+Edit
+def rects_intersect(A, B):
+    (ax1, ay1), (ax2, ay2) = A
+    (bx1, by1), (bx2, by2) = B
+
+    # If one rectangle is completely to the left, right, above or below the other, there's no intersection
+    if ax2 < bx1 or bx2 < ax1:
+        return False
+    if ay2 < by1 or by2 < ay1:
+        return False
+    return True
+Or more compactly:
+
+python
+Copy
+Edit
+def rects_intersect(A, B):
+    (ax1, ay1), (ax2, ay2) = A
+    (bx1, by1), (bx2, by2) = B
+    return not (ax2 < bx1 or ax1 > bx2 or ay2 < by1 or ay1 > by2)
+This runs in O(1) time and handles all axis-aligned boxes.
+
+2. Using Pygame’s Rect
+If you don’t mind pulling in Pygame, its Rect class has exactly what you need:
+
+python
+Copy
+Edit
+import pygame
+
+# Create Rects from your coords
+rect1 = pygame.Rect(ax1, ay1, ax2 - ax1, ay2 - ay1)
+rect2 = pygame.Rect(bx1, by1, bx2 - bx1, by2 - by1)
+
+if rect1.colliderect(rect2):
+    print("They intersect!")
+You get other useful methods too, like clip(), union(), etc.
+
+3. Using Shapely for more complex geometry
+If you want to move beyond simple AABBs (rotated boxes, polygons, etc.), Shapely is a great library:
+
+python
+Copy
+Edit
+from shapely.geometry import box
+
+r1 = box(ax1, ay1, ax2, ay2)
+r2 = box(bx1, by1, bx2, by2)
+
+if r1.intersects(r2):
+    print("Intersect!")
+Shapely can do unions, differences, buffering, and far more.
+
+Recommendation for Pyglet games
+Since you’re already in Pyglet, I’d suggest implementing the simple AABB check yourself (option 1) in your game loop. It’s minimal, has zero dependencies, and is blazingly fast for rectangular hitboxes.
+
+-------------------------------------------------------
+

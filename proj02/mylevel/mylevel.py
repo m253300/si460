@@ -55,16 +55,46 @@ class Level:
 
         # Draw the enemies
         for enemy in self.enemies:
+            # remove enemies if dead
+            # i will need to implement a dead timer so that they can do their dying animation before being removed
+            # if enemy.flags['dead']:
+            #     self.enemies.remove(enemy)
+            # else:
             enemy.draw(t)
 
         # Draw the hero.
         self.hero.draw(t, keyTracking)
 
         for x in config.kunai:
-            if x.playerSprite.x > width:
+            if x.playerSprite.x > width or x.playerSprite.x < 0:
                 config.kunai.remove(x)
             else:
                 x.draw(t)
+
+        # check for collision attacks:
+        if len(enemies) > 0:
+            for enemy in enemies:
+                if not enemy.flags['dead']:
+                    ehb = enemy.getHitbox()
+
+                    # if kunai is in zombie hitbox then zombie take 1 damage and kunai is removed from array
+                    if len(config.kunai) > 0:
+                        for kunai in config.kunai:
+                                khb = kunai.getHitbox()
+                                if kunaiIntersect(khb, ehb):
+                                    enemy.takeDamage(1, t)
+                                    config.kunai.remove(x)
+
+                    # if player is attacking and zombie within front half of player, then zombie takes one damage
+                    hhb = hero.getHitbox()
+                    if hero.flags['attacking'] and kunaiIntersect(hhb, ehb):
+                        enemy.takeDamage(2, t)
+                    elif kunaiIntersect(hhb, ehb):
+                        enemy.attack(t)
+                        hero.takeDamage(1, t)
+
+
+            # if zombie is touching midway of player, then zombie triggers attack animation and player takes 1 damage
 
         if self.hero.flags['dead']:
             label = pyglet.text.Label('You Died',
@@ -74,6 +104,24 @@ class Level:
                     color = (255, 0, 0, 255),
                     anchor_x='center', anchor_y='center')
             label.draw()
+
+def kunaiIntersect(kunaiHitbox, enemyHitbox):
+    llx1 = kunaiHitbox[0][0]
+    lly1 = kunaiHitbox[0][1]
+    urx1 = kunaiHitbox[1][0]
+    ury1 = kunaiHitbox[1][1]
+
+    llx2 = enemyHitbox[0][0]
+    lly2 = enemyHitbox[0][1]
+    urx2 = enemyHitbox[1][0]
+    ury2 = enemyHitbox[1][1]
+
+    # this portion of code is from ChatGPT, I tried to figure this out on my own but after some drawings and one failed attempt I decided to get help. I was hoping for numpy to have some rectangle library though
+    if urx1 < llx2 or urx2 < llx1:
+        return False
+    if ury1 < lly2 or ury2 < lly1:
+        return False
+    return True
 
 # Load all game sprites
 print('Loading Sprites...')

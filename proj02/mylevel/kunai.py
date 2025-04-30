@@ -78,6 +78,14 @@ class Kunai:
         position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
         self.playerSprite.x = position[0]
 
+    def getHitbox(self):
+        x = self.playerSprite.x
+        y = self.playerSprite.y
+        w = self.playerSprite.width
+        h = self.playerSprite.height
+
+        return (x-0.25*w, y+0.25*h), (x+0.25*w, y+0.75*h)
+
     # Draw our character
     def draw(self, t=0, keyTracking={}, *other):
         self.movement(t, keyTracking)

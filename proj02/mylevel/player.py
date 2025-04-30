@@ -137,7 +137,7 @@ class Player:
                 self.changeSprite('Jump', self.facing)
                 self.velocity[1] = 9
 
-            if 'attack' in modes and not self.flags['attacking'] and not self.flags['jumping']:
+            if 'attack' in modes and not self.flags['attacking'] and not self.flags['jumping'] and not self.flags['falling']:
                 self.flags['attacking'] = True
                 self.animationLoop = False
                 self.velocity[0] = 0
@@ -145,7 +145,7 @@ class Player:
                 self.changeSprite('Attack', self.facing)
                 self.timeAttackStarted = t
 
-            if 'shoot' in modes and not self.flags['attacking'] and not self.flags['jumping'] and not self.flags['throwing']:
+            if 'shoot' in modes and not self.flags['attacking'] and not self.flags['jumping'] and not self.flags['throwing'] and not self.flags['falling']:
                 self.flags['throwing'] = True
                 self.animationLoop = False
                 self.velocity[0] = 0
@@ -154,7 +154,7 @@ class Player:
                 self.timeAttackStarted = t
                 config.kunai.append(Kunai(sprites=self.sprites, buildSprite=self.buildSprite, facing=self.facing, x=self.playerSprite.x, y=self.playerSprite.y + 0.5*self.playerSprite.height, time=t))
 
-            self.updateLocation(t)
+        self.updateLocation(t)
 
         hp = ''
         for x in range(self.health):
@@ -172,6 +172,11 @@ class Player:
             return True
         else:
             return False
+        
+    def takeDamage(self, damage, time):
+        if self.ableToBeAttacked(time):
+            self.health -= damage
+            self.timeDamageWasTaken = time
 
     def updateLocation(self, t):
         # LATERAL MOVEMENT
@@ -254,6 +259,17 @@ class Player:
             return False
         else:
             return True
+        
+    def getHitbox(self):
+        x = self.playerSprite.x
+        y = self.playerSprite.y
+        w = self.playerSprite.width
+        h = self.playerSprite.height
+
+        if self.flags['attacking']:
+            return (x-0.5*w, y+0.25*h), (x+0.5*w, y+0.75*h)
+        else:
+            return (x-0.4*w, y+0.25*h), (x+0.4*w, y+0.75*h)
 
     # Draw our character
     def draw(self, t=0, keyTracking={}, *other):
