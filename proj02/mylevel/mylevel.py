@@ -25,6 +25,13 @@ class Level:
         self.hero    = hero
         self.enemies = enemies
 
+        # calculate hitbox for the goal to win the game
+        x = config.goalCol * config.width
+        y = config.goalRow * config.height
+        w = config.width
+        h = config.height
+        self.goalhb = (x-w, y+0.25*h), (x, y+0.75*h)
+
         # Music in the Background
         # self.sound = pyglet.media.Player()
         # self.sound.queue(pyglet.media.load(config.background_music, streaming=True))
@@ -53,6 +60,31 @@ class Level:
         # Draw the gameboard
         self.drawBoard(config.level, 0, 0, config.height, config.width)
 
+        # Draw the objects
+        self.drawBoard(config.objects, 0, 0, config.height, config.width)
+
+        # check if hero intersects with goal and then display win label and freeze game
+        print(self.goalhb)
+        if intersect(hero.getHitbox(), self.goalhb):
+            config.flags['endgame'] = True
+            keyTracking = {}
+            label = pyglet.text.Label('Victory',
+                    font_name='Times New Roman',
+                    font_size=60,
+                    x=width/2, y=height/2,
+                    color = (0, 0, 255, 255),
+                    anchor_x='center', anchor_y='center')
+            label.draw()
+
+        if self.hero.flags['dead']:
+            label = pyglet.text.Label('You Died',
+                    font_name='Times New Roman',
+                    font_size=60,
+                    x=width/2, y=height/2,
+                    color = (255, 0, 0, 255),
+                    anchor_x='center', anchor_y='center')
+            label.draw()
+
         # Draw the enemies
         for enemy in self.enemies:
             # remove enemies if dead
@@ -61,8 +93,6 @@ class Level:
                 self.enemies.remove(enemy)
             else:
                 enemy.draw(t)
-
-        print(self.enemies)
 
         # Draw the hero.
         self.hero.draw(t, keyTracking)
@@ -83,29 +113,20 @@ class Level:
                     if len(config.kunai) > 0:
                         for kunai in config.kunai:
                                 khb = kunai.getHitbox()
-                                if kunaiIntersect(khb, ehb):
+                                if intersect(khb, ehb):
                                     enemy.takeDamage(1, t)
                                     config.kunai.remove(kunai)
 
                     # if player is attacking and zombie within front half of player, then zombie takes one damage
                     hhb = hero.getHitbox()
-                    if hero.flags['attacking'] and kunaiIntersect(hhb, ehb):
+                    if hero.flags['attacking'] and intersect(hhb, ehb):
                         enemy.takeDamage(2, t)
                     # if zombie is touching player, then zombie triggers attack animation and player takes 1 damage
-                    elif kunaiIntersect(hhb, ehb):
+                    elif intersect(hhb, ehb):
                         enemy.attack(t)
                         hero.takeDamage(1, t)
 
-        if self.hero.flags['dead']:
-            label = pyglet.text.Label('You Died',
-                    font_name='Times New Roman',
-                    font_size=60,
-                    x=width/2, y=height/2,
-                    color = (255, 0, 0, 255),
-                    anchor_x='center', anchor_y='center')
-            label.draw()
-
-def kunaiIntersect(kunaiHitbox, enemyHitbox):
+def intersect(kunaiHitbox, enemyHitbox):
     llx1 = kunaiHitbox[0][0]
     lly1 = kunaiHitbox[0][1]
     urx1 = kunaiHitbox[1][0]

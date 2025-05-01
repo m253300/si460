@@ -32,8 +32,12 @@ levelDefinition = '''
 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16
 '''
 
+# Define where the player will start on the board
+playerStartRow = 11
+playerStartCol = 12
+
 # Define the objects
-goalDefinition = '''
+objectsDefinition = '''
 11                                        sm
 10
 09
@@ -48,6 +52,10 @@ goalDefinition = '''
 00
 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16
 '''
+
+# Define where the goal will be on the board
+goalRow = 11
+goalCol = 14
 
 # Define the enemies
 enemyDefinition = '''
@@ -65,10 +73,6 @@ enemyDefinition = '''
 00
 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16
 '''
-
-# Define where the player will start on the board
-playerStartRow = 11
-playerStartCol = 13
 
 # Define the scaling for the player, and speed of the shifts between
 # the various sprites that make up the players.
@@ -99,9 +103,9 @@ sounds = {'hero':{'Jump':        levelName + '/music/jump.wav',
 # When our hero wins the game, play the following music
 heroSoundWin = levelName + '/music/win.wav'
 
-# Where are the sprites, tiles, and goals located?
+# Where are the sprites, tiles, and objects located?
 tilepath     = levelName + '/tiles'
-goalpath     = levelName + '/objects'
+objectpath     = levelName + '/objects'
 spritespath  = levelName + "/sprites"
 
 # Define the Keyboard mappings
@@ -119,8 +123,10 @@ keyMappings = {key.LSHIFT: 'run',    key.RSHIFT: 'run',
 from layout import positionEnemies, board2grid
 enemies = positionEnemies(enemyDefinition)
 level, rows, cols = board2grid(levelDefinition, tilepath, returnSize=True)
-goals = board2grid(goalDefinition, goalpath)
+objects = board2grid(objectsDefinition, objectpath)
 
 pixels_per_meter = 40
 gravity = -9
 kunai = []
+# flags for things
+flags = {'endgame' : False}
