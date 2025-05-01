@@ -84,9 +84,19 @@ class Enemy1:
             self.changeSprite('Dead', self.facing)
 
         elif self.health > 0:
+            if t - self.timeAttackStarted > 1 and self.flags['attacking']:
+                self.flags['attacking'] = False
+                if self.facing == 'Right':
+                    self.velocity[0] = 2
+                else:
+                    self.velocity[0] = -2
+                self.time = t
+                self.position[0] = self.playerSprite.x
+
             # since not dead, use conditionals to update location
             if not self.flags['attacking'] and self.velocity[0] != 0 and self.mode != 'Run':
                 self.changeSprite('Run', self.facing)
+
             self.updateLocation(t)
 
         hp = ''
@@ -101,9 +111,6 @@ class Enemy1:
         label.draw()
 
     def attack(self, t):
-        if t - self.timeAttackStarted > 1:
-                self.flags['attacking'] = False
-
         if not self.flags['attacking']:
             self.flags['attacking'] = True
             self.animationLoop = False
