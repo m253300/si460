@@ -64,7 +64,6 @@ class Level:
         self.drawBoard(config.objects, 0, 0, config.height, config.width)
 
         # check if hero intersects with goal and then display win label and freeze game
-        print(self.goalhb)
         if intersect(hero.getHitbox(), self.goalhb):
             config.flags['endgame'] = True
             keyTracking = {}
