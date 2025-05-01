@@ -89,12 +89,10 @@ class Level:
                     hhb = hero.getHitbox()
                     if hero.flags['attacking'] and kunaiIntersect(hhb, ehb):
                         enemy.takeDamage(2, t)
+                    # if zombie is touching player, then zombie triggers attack animation and player takes 1 damage
                     elif kunaiIntersect(hhb, ehb):
                         enemy.attack(t)
                         hero.takeDamage(1, t)
-
-
-            # if zombie is touching midway of player, then zombie triggers attack animation and player takes 1 damage
 
         if self.hero.flags['dead']:
             label = pyglet.text.Label('You Died',

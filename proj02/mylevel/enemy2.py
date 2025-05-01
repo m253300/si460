@@ -4,12 +4,12 @@
 import config, numpy, math, pyglet
 
 # Our Hero Class
-# random movement so it will randomly decide to jump, walk, attack, etc.
+# red koopa that turns left and right once it reaches a ledge or wall
 class Enemy2:
     def __init__(self, sprites={},
                        buildSprite=None,
-                       playerClass="enemy-1",
-                       mode="Idle",
+                       playerClass="enemy-2",
+                       mode="Run",
                        facing="Left",
                        speed=0.05,
                        scale=0.15,
@@ -39,7 +39,7 @@ class Enemy2:
         self.position = numpy.array([self.playerSprite.x, self.playerSprite.y])
         self.pixels = numpy.array([config.pixels_per_meter, config.pixels_per_meter])
         self.acceleration = numpy.array([0, config.gravity])
-        self.velocity = numpy.array([0, 0])
+        self.velocity = numpy.array([-2, 0])
         # this will be set to the time in movement when a button is pressed
         # if 'left' is triggered at world time 11.6 seconds then this will be set to 11.6 and in the movement function it will calculate time as time = worldtime-self.time to determine how long the movement has been occuring
         # this will be needed for gravity and jumping most importantly
@@ -84,10 +84,20 @@ class Enemy2:
             self.changeSprite('Dead', self.facing)
 
         elif self.health > 0:
-            if t - self.timeAttackStarted > 0.65:
+            if t - self.timeAttackStarted > 1 and self.flags['attacking']:
                 self.flags['attacking'] = False
-            
+                if self.facing == 'Right':
+                    self.velocity[0] = 2
+                else:
+                    self.velocity[0] = -2
+                self.time = t
+                self.position[0] = self.playerSprite.x
+
             # since not dead, use conditionals to update location
+            if not self.flags['attacking'] and self.velocity[0] != 0 and self.mode != 'Run':
+                self.changeSprite('Run', self.facing)
+
+            self.updateLocation(t)
 
         hp = ''
         for x in range(self.health):
@@ -101,9 +111,6 @@ class Enemy2:
         label.draw()
 
     def attack(self, t):
-        if t - self.timeAttackStarted > 1:
-                self.flags['attacking'] = False
-
         if not self.flags['attacking']:
             self.flags['attacking'] = True
             self.animationLoop = False
@@ -125,19 +132,22 @@ class Enemy2:
 
     def updateLocation(self, t):
         # LATERAL MOVEMENT
-        if self.canMoveLaterally():
-            time = t - self.time
-            position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
-
-            # prevents player from going off leftmost edge of screen
-            if position[0] - self.playerSprite.width * 0.5 < 0:
-                position[0] = 0
-            else:
-                self.playerSprite.x = position[0]
+        time = t - self.time
+        position = self.position + self.pixels * ( self.velocity * time ) + self.pixels * ( 0.5 * self.acceleration * time * time )
+        if self.canMoveLaterally(position):
+            self.playerSprite.x = position[0]
         else:
-            if not self.isObstructedAbove():
-                self.velocity[0] = 0
+            # fix this so that the enemy changes direction
+            # i should probably look at the player.py for what happens when movement keys are pressed
+            facing = ''
+            if self.facing == "Left":
+                facing = "Right"
+            else:
+                facing = 'Left'
+            self.velocity[0] *= -1
+            self.time = t
             self.position[0] = self.playerSprite.x
+            self.changeSprite('Run', facing)
 
         # GRAVITY/DOWNWARD MOVEMENT
         time = t - self.timeFalling
@@ -147,10 +157,7 @@ class Enemy2:
             self.position[1] = self.playerSprite.y
             self.flags['falling'] = True
         elif not self.onSolidGround(position[1]) and self.flags['falling']:
-            if self.isObstructedAbove() and self.flags['jumping']:
-                self.velocity[1] = 0
-            else:
-                self.playerSprite.y = position[1]
+            self.playerSprite.y = position[1]
         else:
             self.timeFalling = 0
             self.flags['falling'] = False
@@ -161,19 +168,9 @@ class Enemy2:
 
         if self.playerSprite.y + self.playerSprite.height < 0:
             self.health = 0
-
-    def isObstructedAbove(self):
-        py = self.playerSprite.y
-        oy = math.floor((py + (self.playerSprite.height * 0.75))/config.height)
-        ox = math.floor(self.playerSprite.x/config.width)
-
-        if oy in config.level and ox in config.level[oy]:
-            return True
-        else:
-            return False
             
     # Returns True if player can move laterally/nothing is in the player's way. Returns False if unable to move/something is in the way
-    def canMoveLaterally(self):
+    def canMoveLaterally(self, position):
         py = self.playerSprite.y
 
         # ox is adjusted to account for the sprite anchor being in the center of the player sprite
@@ -186,7 +183,7 @@ class Enemy2:
         oy2 = math.floor((py + (self.playerSprite.height * 0.75))/config.height)
 
         #check if there is an object in the next x position
-        if (oy in config.level and ox in config.level[oy]) or (oy2 in config.level and ox in config.level[oy2]):
+        if (oy in config.level and ox in config.level[oy]) or (oy2 in config.level and ox in config.level[oy2]) or (position[0] - self.playerSprite.width * 0.5 < 0):
             return False
         return True
         
