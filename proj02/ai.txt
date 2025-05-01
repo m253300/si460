@@ -77,7 +77,7 @@ Shapely can do unions, differences, buffering, and far more.
 Recommendation for Pyglet games
 Since you’re already in Pyglet, I’d suggest implementing the simple AABB check yourself (option 1) in your game loop. It’s minimal, has zero dependencies, and is blazingly fast for rectangular hitboxes.
 
--------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Unrelated to this, what would happen if you made a call to a dictionary but the key is not in the dictionary
 
