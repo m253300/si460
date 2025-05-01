@@ -183,7 +183,10 @@ class Enemy2:
         oy2 = math.floor((py + (self.playerSprite.height * 0.75))/config.height)
 
         #check if there is an object in the next x position
-        if (oy in config.level and ox in config.level[oy]) or (oy2 in config.level and ox in config.level[oy2]) or (position[0] - self.playerSprite.width * 0.5 < 0):
+
+        # TODO only modify this to create a red koopa AI
+
+        if (oy in config.level and ox in config.level[oy]) or (oy2 in config.level and ox in config.level[oy2]) or (position[0] - self.playerSprite.width * 0.5 < 0) or (oy-1 in config.level and ox not in config.level[oy-1]):
             return False
         return True
         
