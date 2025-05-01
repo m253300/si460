@@ -57,10 +57,12 @@ class Level:
         for enemy in self.enemies:
             # remove enemies if dead
             # i will need to implement a dead timer so that they can do their dying animation before being removed
-            # if enemy.flags['dead']:
-            #     self.enemies.remove(enemy)
-            # else:
-            enemy.draw(t)
+            if enemy.flags['dead'] and enemy.ableToBeAttacked(t):
+                self.enemies.remove(enemy)
+            else:
+                enemy.draw(t)
+
+        print(self.enemies)
 
         # Draw the hero.
         self.hero.draw(t, keyTracking)
@@ -83,7 +85,7 @@ class Level:
                                 khb = kunai.getHitbox()
                                 if kunaiIntersect(khb, ehb):
                                     enemy.takeDamage(1, t)
-                                    config.kunai.remove(x)
+                                    config.kunai.remove(kunai)
 
                     # if player is attacking and zombie within front half of player, then zombie takes one damage
                     hhb = hero.getHitbox()
