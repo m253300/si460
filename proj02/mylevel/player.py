@@ -76,10 +76,14 @@ class Player:
 
     # Move the character
     def movement(self, t=0, keyTracking={}):
-
-        if self.health <= 0 and not self.flags['dead']:
+        
+        if (self.health <= 0 and not self.flags['dead']) or self.playerSprite.y < -50:
+            self.health = 0
             self.flags['dead'] = True
             self.animationLoop = False
+            self.velocity[0] = 0
+            self.time = t
+            self.position[0] = self.playerSprite.x
             self.changeSprite('Dead', self.facing)
 
         elif self.health > 0:
@@ -214,9 +218,6 @@ class Player:
             self.flags['jumping'] = False
             self.animationLoop = True
 
-        if self.playerSprite.y + self.playerSprite.height < 0:
-            self.health = 0
-
     def isObstructedAbove(self):
         py = self.playerSprite.y
         oy = math.floor((py + (self.playerSprite.height * 0.75))/config.height)
@@ -268,6 +269,8 @@ class Player:
 
         if self.flags['attacking']:
             return (x-0.5*w, y+0.25*h), (x+0.5*w, y+0.75*h)
+        elif self.mode == 'Run':
+            return (x, y+0.25*h), (x, y+0.75*h)
         else:
             return (x-0.4*w, y+0.25*h), (x+0.4*w, y+0.75*h)
 

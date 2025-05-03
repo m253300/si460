@@ -4,7 +4,7 @@
 # the game board.
 
 # Import the pyglet library
-import pyglet, sys
+import pyglet
 
 # A function to cleate a useful grid from the board file...
 def board2grid(board, tilepath='sprites/tiles', returnSize=False):
@@ -35,26 +35,4 @@ def board2grid(board, tilepath='sprites/tiles', returnSize=False):
         row += 1
     if returnSize:
         return results, row, max_cols
-    return results
-
-# Here is a function that will determine where the enemies should start
-# based on the definition above.
-def positionEnemies(board):
-    board = board.split('\n')[1:-2]
-    board.reverse()
-    results = []
-    row = 0
-    max_cols = 0
-    for line in board:
-        col = 0
-        line = line[2:]
-        while len(line) > 2:
-            current = line[:3].strip()
-            line = line[3:]
-            if current != '':
-                results.append([col,row,current])
-            if col > max_cols:
-                max_cols = col
-            col += 1
-        row += 1
     return results

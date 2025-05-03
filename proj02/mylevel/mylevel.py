@@ -2,6 +2,7 @@
 
 # Important Libraries
 import pyglet
+from pyglet.gl import glLoadIdentity, glTranslatef
 
 # Our own Game Libraries
 import sprites, config
@@ -31,6 +32,8 @@ class Level:
         w = config.width
         h = config.height
         self.goalhb = (x-w, y+0.25*h), (x, y+0.75*h)
+
+        self.scrollX = 0
 
         # Music in the Background
         # self.sound = pyglet.media.Player()
@@ -70,7 +73,7 @@ class Level:
             label = pyglet.text.Label('Victory',
                     font_name='Times New Roman',
                     font_size=60,
-                    x=width/2, y=height/2,
+                    x=width/2 + self.scrollX, y=height/2,
                     color = (0, 0, 255, 255),
                     anchor_x='center', anchor_y='center')
             label.draw()
@@ -79,7 +82,7 @@ class Level:
             label = pyglet.text.Label('You Died',
                     font_name='Times New Roman',
                     font_size=60,
-                    x=width/2, y=height/2,
+                    x=width/2 + self.scrollX, y=height/2,
                     color = (255, 0, 0, 255),
                     anchor_x='center', anchor_y='center')
             label.draw()
@@ -97,7 +100,7 @@ class Level:
         self.hero.draw(t, keyTracking)
 
         for x in config.kunai:
-            if x.playerSprite.x > width or x.playerSprite.x < 0:
+            if x.playerSprite.x < 0 or x.playerSprite.x > config.cols * config.width:
                 config.kunai.remove(x)
             else:
                 x.draw(t)
@@ -124,6 +127,23 @@ class Level:
                     elif intersect(hhb, ehb):
                         enemy.attack(t)
                         hero.takeDamage(1, t)
+
+        limitLeft = (1/4)*width
+        leftQuarter = (1/4)*width + self.scrollX
+        rightQuarter = (3/4)*width + self.scrollX
+        playerLocation = self.hero.playerSprite.x
+        if playerLocation < leftQuarter and leftQuarter > limitLeft:
+            # Shift the world
+            self.scrollX -= 5
+            glTranslatef(5, 0, 0)
+            # Shift the background image
+            self.background_x = self.scrollX
+        elif playerLocation > rightQuarter:
+            # Shift the world
+            self.scrollX += 5
+            glTranslatef(-5, 0, 0)
+            # Shift the background image
+            self.background_x = self.scrollX
 
 def intersect(kunaiHitbox, enemyHitbox):
     llx1 = kunaiHitbox[0][0]

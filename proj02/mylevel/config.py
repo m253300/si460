@@ -20,59 +20,47 @@ levelDefinition = '''
 11
 10                                     hl hr
 09
-08
-07                         hl hm hm hm hm hm hm hm hr
+08                                                                                                                hl hm hm hm hm hm hm hm hr                              
+07                         hl hm hm hm hm hm hm hm hr                      
 06
-05             hl hr   
-04                 
-03 um ur           
-02 mm mr                            
-01 mm cr wl um um um um um um um um ur
+05             hl hr                                                                               hl hm hm hm hr    
+04                                                                              
+03 um ur                                                                       
+02 mm mr                                                          hl hm hm hm hm hm hm hm hr
+01 mm cr wl um um um um um um um um ur                                                                                                    hl hm hm hm hr
 00 mm mm mm mm mm mm mm mm mm mm mm mr
-00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16
+00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50
 '''
 
 # Define where the player will start on the board
-playerStartRow = 11
-playerStartCol = 12
+playerStartRow = 2
+playerStartCol = 11
+
+# Define the enemies
+enemies = [(10, 8, 'e2'), (17, 8, 'e1'), (3, 2, 'e2'),
+           (46, 9, 'e1'), (35, 6, 'e2'), (44, 9, 'e2'),
+           (23, 3, 'e2'), (29, 3, 'e2'), (9, 8, 'e1')]
 
 # Define the objects
 objectsDefinition = '''
-11                                        sm
+11                                        
 10
 09
-08
+08                                  
 07
 06
 05
 04
 03
-02
+02                                                                                                                                              sm
 01
 00
-00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16
+00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50
 '''
 
 # Define where the goal will be on the board
-goalRow = 11
-goalCol = 14
-
-# Define the enemies
-enemyDefinition = '''
-11
-10
-09
-08                               e1
-07
-06
-05
-04
-03
-02             e2
-01
-00
-00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16
-'''
+goalRow = 2
+goalCol = 48
 
 # Define the scaling for the player, and speed of the shifts between
 # the various sprites that make up the players.
@@ -120,8 +108,7 @@ keyMappings = {key.LSHIFT: 'run',    key.RSHIFT: 'run',
                key.DOWN:   'down',   key.S:      'down'}
 
 # Determine some very useful information needed in our game.
-from layout import positionEnemies, board2grid
-enemies = positionEnemies(enemyDefinition)
+from layout import board2grid
 level, rows, cols = board2grid(levelDefinition, tilepath, returnSize=True)
 objects = board2grid(objectsDefinition, objectpath)
 

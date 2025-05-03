@@ -51,7 +51,7 @@ class Enemy2:
                       'dead'      : False,
                       'attacking' : False,
                       'throwing'  : False}
-        self.health = 3
+        self.health = 2
         self.timeDamageWasTaken = 0
         self.timeAttackStarted = 0
 

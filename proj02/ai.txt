@@ -1,4 +1,4 @@
-DISCLAIMER: I used Gemini and ChatGPT to try and work on this project A LOT but they never produced code which actually worked or helped in any way. I tried dozens of time to give them the actual files and help me with the movement and world collision especially but they were never able to fix anything and usually made it worse. The following is the only instance in which I received usuable code which I did implement into my project. Everything below the dashes is all the useless AI chat history I have. A lof of the conversations involved me attaching the .py files like player.py and config.py to hopefully get better outputs to no avail. Again, the below is the only thing I actually used, and everything below the dashes was chat history which helped me make zero progress towards completion.
+DISCLAIMER: I used Gemini and ChatGPT to try and work on this project A LOT but they never produced code which actually worked or helped in any way. I tried dozens of time to give them the actual files and help me with the movement and world collision especially but they were never able to fix anything and usually made it worse. The following is the only instance in which I received usuable code which I did implement into my project. Everything below the dashes is all the useless AI chat history I have. A lot of the conversations involved me attaching the .py files like player.py and config.py to hopefully get better outputs to no avail. Again, the below is the only thing I actually used, and everything below the dashes was chat history which helped me make zero progress towards completion.
 
 Hitbox Detection:
 
@@ -77,6 +77,78 @@ Shapely can do unions, differences, buffering, and far more.
 Recommendation for Pyglet games
 Since you’re already in Pyglet, I’d suggest implementing the simple AABB check yourself (option 1) in your game loop. It’s minimal, has zero dependencies, and is blazingly fast for rectangular hitboxes.
 
+
+Centering the window when the application runs:
+
+Im using pyglet and when I run the program the window appears in a random location on my screen. Is there a way to control where it opens up?
+
+
+ChatGPT said:
+Yes, you can control where a Pyglet window opens on the screen using the set_location(x, y) method of the window object.
+
+To set the position of the window explicitly, add this line after creating the window in your Game class:
+
+python
+Copy
+Edit
+self.window.set_location(x, y)
+Where:
+
+x is the number of pixels from the left edge of the screen.
+
+y is the number of pixels from the bottom edge of the screen.
+
+Example:
+In your game.py, inside the __init__ method of the Game class:
+
+python
+Copy
+Edit
+self.window = pyglet.window.Window(width=self.width, height=self.height, resizable=resizable, caption=caption)
+self.window.set_location(100, 100)  # Sets the window 100px from left and bottom
+This will consistently place the window in the bottom-left quadrant of your screen. You can adjust the coordinates based on your preference or screen resolution.
+
+Would you like it to center on screen or align to a specific corner?
+
+
+
+
+
+
+You said:
+How do i center it?
+
+
+ChatGPT said:
+To center a Pyglet window on the screen, you'll need to:
+
+Get the screen resolution.
+
+Subtract the window dimensions from the screen dimensions.
+
+Divide by 2 to get the top-left coordinates for centering.
+
+Here’s how to do that in your Game class, right after creating the window:
+
+python
+Copy
+Edit
+self.window = pyglet.window.Window(width=self.width, height=self.height, resizable=resizable, caption=caption)
+
+# Get the primary screen dimensions
+screen = self.window.screen
+screen_width = screen.width
+screen_height = screen.height
+
+# Compute centered position
+center_x = (screen_width - self.width) // 2
+center_y = (screen_height - self.height) // 2
+
+# Set window position
+self.window.set_location(center_x, center_y)
+This will ensure the window always opens centered, even if the screen resolution changes.
+
+Would you like this to work for multiple monitors as well?
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Unrelated to this, what would happen if you made a call to a dictionary but the key is not in the dictionary

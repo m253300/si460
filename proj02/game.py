@@ -29,6 +29,20 @@ class Game:
         # Build the OpenGL / Pyglet Window
         self.window = pyglet.window.Window(width=self.width, height=self.height, resizable=resizable, caption=caption)
 
+        # THIS IS FROM CHATGPT SO THE WINDOW IS CENTER WHEN IT OPENS AND NOT IN A RANDOM SPOT ON SCREEN 
+        # THE PROMPT AND RESPONSE IS IN ai.txt
+        # Get the primary screen dimensions
+        screen = self.window.screen
+        screen_width = screen.width
+        screen_height = screen.height
+
+        # Compute centered position
+        center_x = (screen_width - self.width) // 2
+        center_y = (screen_height - self.height) // 2
+
+        # Set window position
+        self.window.set_location(center_x, center_y)
+
         # Fix transparent issue...
         pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
         pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
@@ -94,5 +108,5 @@ if __name__ == '__main__':
     level =  getattr(importlib.import_module(levelName), 'level')
 
     print('Starting Game...')
-    myGame = Game(800, 800, "SI460 Game", level)
+    myGame = Game(800, 600, "SI460 Game", level)
     pyglet.app.run()
